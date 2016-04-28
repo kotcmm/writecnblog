@@ -16,7 +16,15 @@ export class Metaweblog{
         
     }
     
-    newPos(blogid:string, username:string, password:string, post:Object, publish:boolean){
-        this._xmlrpc.send("metaWeblog.newPost",blogid,username,password,post,publish);
+    getPost(postid:string, username:string, password:string,callBack){
+        this._xmlrpc.send("metaWeblog.getPost",postid,username,password,callBack);
+    }
+    
+    getRecentPosts(blogid:string, username:string, password:string,	numberOfPosts:Number,callBack){
+        this._xmlrpc.send("metaWeblog.getRecentPosts",blogid,username,password,numberOfPosts,callBack);
+    }
+    
+    newPos(blogid:string, username:string, password:string, post:Object, publish:boolean,callBack){
+        this._xmlrpc.send("metaWeblog.newPost",blogid,username,password,post,publish,callBack);
     }
 }
