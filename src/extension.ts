@@ -107,7 +107,17 @@ function callBakc(err, method, backData) {
             break;
 
         case "metaWeblog.getPost":
-            console.log(backData);
+            var uri = vscode.Uri.parse("untitled:"+vscode.workspace.rootPath + "\\" + backData.title+".md");
+            var document = vscode.workspace.openTextDocument(uri);
+            document.then(function insertDocument(getPostDocument) {
+                var editText = vscode.window.showTextDocument(getPostDocument);
+                editText.then(function textEditor(activeTextEditor) {
+                    activeTextEditor.edit(function editDocument(editParams) {
+                        editParams.insert(vscode.window.activeTextEditor.selection.active, backData.description);
+                    });
+                });
+                
+            })
             break;
         default:
             break;
