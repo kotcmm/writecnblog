@@ -7,58 +7,74 @@ import {CnbolgPickItem} from './cnbolgPickItem'
 
 export function activate(context: vscode.ExtensionContext) {
 
-    let disposable = vscode.commands.registerCommand('extension.writeCnbolg', () => {
-
-        if (!vscode.workspace.rootPath) {
-            vscode.window.showInformationMessage("需要打开文件夹并创建工作区设置");
-            return;
-        }
-
-        let blogConfig = getBlogConfig();
-
-        let pick = vscode.window.showQuickPick(new Array(
-            new CnbolgPickItem("发布博文", "newPost"),
-            new CnbolgPickItem("保存草稿", "savePost"),
-            new CnbolgPickItem("获取文章", "recentPosts"),
-            new CnbolgPickItem("帮助", "help")));
-
-        pick.then(function name(params: CnbolgPickItem) {
-            if (!params) return;
-
-            switch (params.detail) {
-                case "newPost":
-                    newPost(blogConfig.config, blogConfig.metaweblog, true);
-                    break;
-                case "savePost":
-                    newPost(blogConfig.config, blogConfig.metaweblog, false);
-                    break;
-                case "recentPosts":
-                    getRecentPosts(blogConfig.config, blogConfig.metaweblog);
-                    break;
-                case "help":
-
-                    break;
-                default:
-                    break;
-            }
+    let newPostDisposable = vscode.commands.registerCommand('extension.writeCnbolg.newPost', () => {
+        getBlogConfig(function initConfig(blogConfig) {
+            newPost(blogConfig.config, blogConfig.metaweblog, true);
         });
+    });
+
+    let savePostDisposable = vscode.commands.registerCommand('extension.writeCnbolg.savePost', () => {
+        getBlogConfig(function initConfig(blogConfig) {
+            newPost(blogConfig.config, blogConfig.metaweblog, false);
+        });
+    });
+
+    let recentPostsDisposable = vscode.commands.registerCommand('extension.writeCnbolg.recentPosts', () => {
+        getBlogConfig(function initConfig(blogConfig) {
+            getRecentPosts(blogConfig.config, blogConfig.metaweblog);
+        });
+    });
+
+    let newMediaObjectDisposable = vscode.commands.registerCommand('extension.writeCnbolg.newMediaObject', () => {
 
     });
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(newPostDisposable);
+    context.subscriptions.push(savePostDisposable);
+    context.subscriptions.push(recentPostsDisposable);
+    context.subscriptions.push(newMediaObjectDisposable);
 }
 
-function getBlogConfig():any {
-    let blogConfig = {};
-    let configuration = vscode.workspace.getConfiguration('cnblog.confing');
-    blogConfig["config"] = {
-        apiUrl: configuration.get("apiUrl"),
-        blogid: configuration.get("blogid"),
-        name: configuration.get("name"),
-        password: configuration.get("password")
-    };
-    blogConfig["metaweblog"] = new Metaweblog(configuration.get<string>("apiUrl"));
-    return blogConfig;
+function getBlogConfig(callBakc) {
+    let blogNameResult = vscode.window.showInputBox({ prompt: "输入Blog地址名" });
+    blogNameResult.then(function blogNameInputThen(blogNameParams) {
+        
+        if (blogNameParams == undefined) return;
+        
+        let apiUrl = "http://www.cnblogs.com/"+blogNameParams+"/services/metablogapi.aspx";
+        let nameResult = vscode.window.showInputBox({ prompt: "输入用户名" });
+        nameResult.then(function nameInputThen(nameParams) {
+
+            if (nameParams == undefined) return;
+
+            let name = nameParams;
+            let passwordResult = vscode.window.showInputBox({ prompt: "输入密码", password: true });
+            passwordResult.then(function passwordInputThen(passwordParams) {
+
+                if (passwordParams == undefined) return;
+
+                let password = passwordParams;
+                let metaweblog = new Metaweblog(apiUrl);
+                metaweblog.getUsersBlogs("cnblogWriteVsCode", name, password, function getUsersBlogsCallBakc(err, method, backData) {
+
+                    if (backData.faultCode) {
+                        vscode.window.showErrorMessage(backData.faultString);
+                        return;
+                    }
+                    let blogConfig = {};
+                    blogConfig["config"] = {
+                        apiUrl: apiUrl,
+                        blogid: backData[0].blogid,
+                        name: name,
+                        password: password
+                    };
+                    blogConfig["metaweblog"] = metaweblog;
+                    
+                    if(callBakc) callBakc(blogConfig);
+                });
+            });
+        });
+    });
 }
 
 function getRecentPosts(config, metaweblog: Metaweblog) {
@@ -97,17 +113,17 @@ function callBakc(err, method, backData) {
 
             pick.then(function name(params: CnbolgPickItem) {
                 if (!params) return;
-                
-                let blogConfig = getBlogConfig();
-                blogConfig.metaweblog.getPost(params.detail,blogConfig.config.name, blogConfig.config.password, callBakc);
+
+                // let blogConfig = getBlogConfig();
+                // blogConfig.metaweblog.getPost(params.detail, blogConfig.config.name, blogConfig.config.password, callBakc);
             });
             break;
         case "metaWeblog.newPost":
-            vscode.window.showInformationMessage("添加文章成功，文章编号："+backData);
+            vscode.window.showInformationMessage("添加文章成功，文章编号：" + backData);
             break;
 
         case "metaWeblog.getPost":
-            var uri = vscode.Uri.parse("untitled:"+vscode.workspace.rootPath + "\\" + backData.title+".md");
+            var uri = vscode.Uri.parse("untitled:" + vscode.workspace.rootPath + "\\" + backData.title + ".md");
             var document = vscode.workspace.openTextDocument(uri);
             document.then(function insertDocument(getPostDocument) {
                 var editText = vscode.window.showTextDocument(getPostDocument);
@@ -116,7 +132,7 @@ function callBakc(err, method, backData) {
                         editParams.insert(vscode.window.activeTextEditor.selection.active, backData.description);
                     });
                 });
-                
+
             })
             break;
         default:

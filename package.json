@@ -11,13 +11,25 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.writeCnbolg"
+        "onCommand:extension.writeCnbolg.newPost",
+        "onCommand:extension.writeCnbolg.savePost",
+        "onCommand:extension.writeCnbolg.recentPosts",
+        "onCommand:extension.writeCnbolg.newMediaObject"
     ],
     "main": "./out/src/extension",
     "contributes": {
         "commands": [{
-            "command": "extension.writeCnbolg",
-            "title": "cnbolg"
+            "command": "extension.writeCnbolg.newPost",
+            "title": "cnbolg:发布博文"
+        },{
+            "command": "extension.writeCnbolg.savePost",
+            "title": "cnbolg:保存草稿"
+        },{
+            "command": "extension.writeCnbolg.recentPosts",
+            "title": "cnbolg:获取文章"
+        },{
+            "command": "extension.writeCnbolg.newMediaObject",
+            "title": "cnbolg:上传图片"
         }]
     },
     "scripts": {

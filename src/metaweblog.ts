@@ -12,8 +12,8 @@ export class Metaweblog{
         
     }
     
-    getUsersBlogs(appKey:string, username:string, password:string){
-        
+    getUsersBlogs(appKey:string, username:string, password:string,callBack){
+        this._xmlrpc.send("blogger.getUsersBlogs",appKey,username,password,callBack);
     }
     
     getPost(postid:string, username:string, password:string,callBack){
