@@ -24,6 +24,10 @@ export class Metaweblog{
         this._xmlrpc.send("metaWeblog.getRecentPosts",blogid,username,password,numberOfPosts,callBack);
     }
     
+    newMediaObject(blogid:string,username:string,password:string,file:Object,callBack){
+        this._xmlrpc.send("metaWeblog.newMediaObject",blogid,username,password,file,callBack);
+    }
+    
     newPos(blogid:string, username:string, password:string, post:Object, publish:boolean,callBack){
         this._xmlrpc.send("metaWeblog.newPost",blogid,username,password,post,publish,callBack);
     }

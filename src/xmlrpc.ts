@@ -89,6 +89,9 @@ export class Xmlrpc {
             case 'String':
                 d.push('<string>' + this.escape(data) + '</string>');
                 break;
+            case 'Buffer':
+                d.push('<base64>' + data.toString('base64') + '</base64>');
+                break;
             case 'Date':
                 d.push('<dateTime.iso8601>' + data.toISOString() + '</dateTime.iso8601>');
                 break;
