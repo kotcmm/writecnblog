@@ -1,7 +1,7 @@
 "use strict";
 import * as vscode from 'vscode';
 
-export class CnbolgPickItem implements vscode.QuickPickItem {
+export class CnblogPickItem implements vscode.QuickPickItem {
 		label: string;
 		description: string;
 		detail: string;   

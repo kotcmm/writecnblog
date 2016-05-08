@@ -1,6 +1,7 @@
 'use strict';
 
 import * as fs from 'fs';
+import * as path from 'path';
 
 export class ImageToBase64 {
 
@@ -25,16 +26,13 @@ export class ImageToBase64 {
     }
     
     private fileInfo(fileUrl:string):any{
-        fileUrl = fileUrl.replace(/\//g,'\\');
         let fileInfo = {};
         let imageTypeExtensions = ['png','jpg','gif'];
         imageTypeExtensions.forEach(extensionName=>{
-            if (fileUrl.endsWith(extensionName)) {
+            let extname = path.extname(fileUrl);
+            if (extname.endsWith(extensionName)) {
                 fileInfo["type"] = `image/${extensionName}`;
-                let lastPoint = fileUrl.lastIndexOf('\\');
-                if (lastPoint > 0) { lastPoint += 1; }
-                else { lastPoint = 0; }
-                fileInfo["name"] = fileUrl.substring(lastPoint, fileUrl.length);
+                fileInfo["name"] = path.basename(fileUrl);
                 return;
             }
         });

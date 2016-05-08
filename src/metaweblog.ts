@@ -31,4 +31,8 @@ export class Metaweblog{
     newPos(blogid:string, username:string, password:string, post:Object, publish:boolean,callBack){
         this._xmlrpc.send("metaWeblog.newPost",blogid,username,password,post,publish,callBack);
     }
+    
+    editPos(postid:string, username:string, password:string, post:Object, publish:boolean,callBack){
+        this._xmlrpc.send("metaWeblog.editPost",postid,username,password,post,publish,callBack);
+    }
 }

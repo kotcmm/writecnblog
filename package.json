@@ -1,7 +1,7 @@
 {
-    "name": "writecnbolg",
-    "displayName": "WriteCnbolg",
-    "description": "write bolg to cnbolg",
+    "name": "writeCnblog",
+    "displayName": "WriteCnblog",
+    "description": "write blog to Cnblog",
     "version": "0.0.1",
     "publisher": "caipeiyu",
     "engines": {
@@ -11,25 +11,33 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.writeCnbolg.newPost",
-        "onCommand:extension.writeCnbolg.savePost",
-        "onCommand:extension.writeCnbolg.recentPosts",
-        "onCommand:extension.writeCnbolg.newMediaObject"
+        "onCommand:extension.writeCnblog.newPost",
+        "onCommand:extension.writeCnblog.savePost",
+        "onCommand:extension.writeCnblog.editNewPost",
+        "onCommand:extension.writeCnblog.editSavePost",
+        "onCommand:extension.writeCnblog.recentPosts",
+        "onCommand:extension.writeCnblog.newMediaObject"
     ],
     "main": "./out/src/extension",
     "contributes": {
         "commands": [{
-            "command": "extension.writeCnbolg.newPost",
-            "title": "cnbolg:发布博文"
+            "command": "extension.writeCnblog.newPost",
+            "title": "Cnblog:发布博文"
         },{
-            "command": "extension.writeCnbolg.savePost",
-            "title": "cnbolg:保存草稿"
+            "command": "extension.writeCnblog.savePost",
+            "title": "Cnblog:保存草稿"
         },{
-            "command": "extension.writeCnbolg.recentPosts",
-            "title": "cnbolg:获取文章"
+            "command": "extension.writeCnblog.editNewPost",
+            "title": "Cnblog:更新并发布博文"
         },{
-            "command": "extension.writeCnbolg.newMediaObject",
-            "title": "cnbolg:上传图片"
+            "command": "extension.writeCnblog.editSavePost",
+            "title": "Cnblog:更新并保存草稿"
+        },{
+            "command": "extension.writeCnblog.recentPosts",
+            "title": "Cnblog:获取文章"
+        },{
+            "command": "extension.writeCnblog.newMediaObject",
+            "title": "Cnblog:上传图片"
         }]
     },
     "scripts": {
