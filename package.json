@@ -1,5 +1,5 @@
 {
-    "name": "writeCnblog",
+    "name": "writecnblog",
     "displayName": "WriteCnblog",
     "description": "write blog to Cnblog",
     "version": "0.0.1",
@@ -20,25 +20,32 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
-            "command": "extension.writeCnblog.newPost",
-            "title": "Cnblog:发布博文"
-        },{
-            "command": "extension.writeCnblog.savePost",
-            "title": "Cnblog:保存草稿"
-        },{
-            "command": "extension.writeCnblog.editNewPost",
-            "title": "Cnblog:更新并发布博文"
-        },{
-            "command": "extension.writeCnblog.editSavePost",
-            "title": "Cnblog:更新并保存草稿"
-        },{
-            "command": "extension.writeCnblog.recentPosts",
-            "title": "Cnblog:获取文章"
-        },{
-            "command": "extension.writeCnblog.newMediaObject",
-            "title": "Cnblog:上传图片"
-        }]
+        "commands": [
+            {
+                "command": "extension.writeCnblog.newPost",
+                "title": "Cnblog:发布博文"
+            },
+            {
+                "command": "extension.writeCnblog.savePost",
+                "title": "Cnblog:保存草稿"
+            },
+            {
+                "command": "extension.writeCnblog.editNewPost",
+                "title": "Cnblog:更新并发布博文"
+            },
+            {
+                "command": "extension.writeCnblog.editSavePost",
+                "title": "Cnblog:更新并保存草稿"
+            },
+            {
+                "command": "extension.writeCnblog.recentPosts",
+                "title": "Cnblog:获取文章"
+            },
+            {
+                "command": "extension.writeCnblog.newMediaObject",
+                "title": "Cnblog:上传图片"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
@@ -48,6 +55,10 @@
     "devDependencies": {
         "typescript": "^1.8.5",
         "vscode": "^0.11.10",
-        "xml2js":"^0.4.16"
+        "xml2js": "^0.4.16"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kotcmm/writecnblog.git"
     }
 }
