@@ -1,7 +1,7 @@
 "use strict";
 
 var request = require('request');
-var parseString = require('xml2js').parseString;
+var xml2js = require('xml2js');
 
 export class Xmlrpc {
     private options;
@@ -29,7 +29,7 @@ export class Xmlrpc {
         this.options.body = this.xmlSerialize(paramsData);
         
         request(this.options, function (error, response, body) {
-            parseString(body, function (err, result) {
+            xml2js.parseString(body, function (err, result) {
                 var backData = that._parse(result)
                 if(callback){
                     var method = params[0];
