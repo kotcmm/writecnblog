@@ -4,6 +4,20 @@
     "description": "write blog to Cnblog",
     "version": "0.0.1",
     "publisher": "caipeiyu",
+    "author": {
+        "name": "caipeiyu",
+        "email": "kotcmm@sina.com"
+    },
+    "license": "Apache Licene 2.0",
+    "bugs": {
+        "url": "https://github.com/Huachao/vscode-restclient/issues",
+        "email": "kotcmm@sina.com"
+    },
+    "homepage": "https://github.com/kotcmm/writecnblog/blob/master/README.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kotcmm/writecnblog.git"
+    },
     "engines": {
         "vscode": "^0.10.10"
     },
@@ -54,11 +68,11 @@
     },
     "devDependencies": {
         "typescript": "^1.8.5",
-        "vscode": "^0.11.10",
+        "vscode": "^0.11.0",
         "xml2js": "^0.4.16"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/kotcmm/writecnblog.git"
+    "dependencies": {
+        "request": "^2.69.0",
+        "xml2js": "^0.4.16"
     }
 }
