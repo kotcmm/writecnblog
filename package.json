@@ -1,78 +1,100 @@
 {
-    "name": "writecnblog",
-    "displayName": "WriteCnblog",
-    "description": "write blog to Cnblog",
-    "version": "0.0.1",
-    "publisher": "caipeiyu",
-    "author": {
-        "name": "caipeiyu",
-        "email": "kotcmm@sina.com"
-    },
-    "license": "Apache Licene 2.0",
-    "bugs": {
-        "url": "https://github.com/Huachao/vscode-restclient/issues",
-        "email": "kotcmm@sina.com"
-    },
-    "homepage": "https://github.com/kotcmm/writecnblog/blob/master/README.md",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/kotcmm/writecnblog.git"
-    },
-    "engines": {
-        "vscode": "^0.10.10"
-    },
-    "categories": [
-        "Other"
+  "name": "writecnblog",
+  "displayName": "WriteCnblog",
+  "description": "write blog to Cnblog",
+  "version": "0.0.2",
+  "publisher": "caipeiyu",
+  "author": {
+    "name": "caipeiyu",
+    "email": "kotcmm@sina.com"
+  },
+  "license": "Apache Licene 2.0",
+  "bugs": {
+    "url": "https://github.com/kotcmm/writecnblog/issues",
+    "email": "kotcmm@sina.com"
+  },
+  "homepage": "https://github.com/kotcmm/writecnblog/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kotcmm/writecnblog.git"
+  },
+  "engines": {
+    "vscode": "^0.10.10"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.writeCnblog.newPost",
+    "onCommand:extension.writeCnblog.savePost",
+    "onCommand:extension.writeCnblog.editNewPost",
+    "onCommand:extension.writeCnblog.editSavePost",
+    "onCommand:extension.writeCnblog.recentPosts",
+    "onCommand:extension.writeCnblog.newMediaObject"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.writeCnblog.newPost",
+        "title": "Cnblog:发布博文"
+      },
+      {
+        "command": "extension.writeCnblog.savePost",
+        "title": "Cnblog:保存草稿"
+      },
+      {
+        "command": "extension.writeCnblog.editNewPost",
+        "title": "Cnblog:更新并发布博文"
+      },
+      {
+        "command": "extension.writeCnblog.editSavePost",
+        "title": "Cnblog:更新并保存草稿"
+      },
+      {
+        "command": "extension.writeCnblog.recentPosts",
+        "title": "Cnblog:获取文章"
+      },
+      {
+        "command": "extension.writeCnblog.newMediaObject",
+        "title": "Cnblog:上传图片"
+      }
     ],
-    "activationEvents": [
-        "onCommand:extension.writeCnblog.newPost",
-        "onCommand:extension.writeCnblog.savePost",
-        "onCommand:extension.writeCnblog.editNewPost",
-        "onCommand:extension.writeCnblog.editSavePost",
-        "onCommand:extension.writeCnblog.recentPosts",
-        "onCommand:extension.writeCnblog.newMediaObject"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "commands": [
-            {
-                "command": "extension.writeCnblog.newPost",
-                "title": "Cnblog:发布博文"
-            },
-            {
-                "command": "extension.writeCnblog.savePost",
-                "title": "Cnblog:保存草稿"
-            },
-            {
-                "command": "extension.writeCnblog.editNewPost",
-                "title": "Cnblog:更新并发布博文"
-            },
-            {
-                "command": "extension.writeCnblog.editSavePost",
-                "title": "Cnblog:更新并保存草稿"
-            },
-            {
-                "command": "extension.writeCnblog.recentPosts",
-                "title": "Cnblog:获取文章"
-            },
-            {
-                "command": "extension.writeCnblog.newMediaObject",
-                "title": "Cnblog:上传图片"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "typescript": "^1.8.5",
-        "vscode": "^0.11.0",
-        "xml2js": "^0.4.16"
-    },
-    "dependencies": {
-        "request": "^2.69.0",
-        "xml2js": "^0.4.16"
+    "configuration": {
+      "type": "object",
+      "title": "writeCnblog configuration",
+      "properties": {
+        "writeCnblog.apiUrl": {
+          "type": "string",
+          "default": "",
+          "description": "http://rpc.cnblogs.com/metaweblog/+Blog地址名"
+        },
+        "writeCnblog.userName": {
+          "type": "string",
+          "default": "",
+          "description": "博客园的用户名"
+        }
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "electron": "^1.5.1",
+    "electron-rebuild": "^1.5.11",
+    "keytar": "^4.0.2",
+    "typescript": "^1.8.5",
+    "vscode": "^0.11.0",
+    "xml2js": "^0.4.16"
+  },
+  "dependencies": {
+    "electron": "^1.6.2",
+    "keytar": "^4.0.2",
+    "request": "^2.69.0",
+    "vscode": "^0.11.0",
+    "xml2js": "^0.4.16"
+  }
 }

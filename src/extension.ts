@@ -3,11 +3,12 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import {Metaweblog}  from './metaweblog'
-import {CnblogPickItem} from './CnblogPickItem'
-import {ImageToBase64} from './ImageToBase64'
-import {FileController} from './FileController'
-
+//import TelemetryReporter from 'vscode-extension-telemetry';
+import { Metaweblog } from './metaweblog'
+import { CnblogPickItem } from './CnblogPickItem'
+import { ImageToBase64 } from './ImageToBase64'
+import { FileController } from './FileController'
+var keytar = require('keytar');
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -83,44 +84,37 @@ function getBlogConfig(callBakc) {
         return;
     };
 
-    let blogNameResult = vscode.window.showInputBox({ prompt: "输入Blog地址名" });
-    blogNameResult.then(function blogNameInputThen(blogNameParams) {
+    let apiUrl = vscode.workspace.getConfiguration('writeCnblog').get<string>('apiUrl');
+    let userName = vscode.workspace.getConfiguration('writeCnblog').get<string>('userName');
 
-        if (blogNameParams == undefined) return;
+    //var password = keytar.getPassword(extensionId, userName);
 
-        let apiUrl = "http://rpc.cnblogs.com/metaweblog/" + blogNameParams;
-        let nameResult = vscode.window.showInputBox({ prompt: "输入用户名" });
-        nameResult.then(function nameInputThen(nameParams) {
+    //var r = keytar.setPassword("writecnblog","abc","abc");
 
-            if (nameParams == undefined) return;
+    let passwordResult = vscode.window.showInputBox({ prompt: "输入密码", password: true });
+    passwordResult.then(function passwordInputThen(passwordParams) {
 
-            let name = nameParams;
-            let passwordResult = vscode.window.showInputBox({ prompt: "输入密码", password: true });
-            passwordResult.then(function passwordInputThen(passwordParams) {
+        if (passwordParams == undefined) return;
 
-                if (passwordParams == undefined) return;
+        let password = passwordParams;
+        let metaweblog = new Metaweblog(apiUrl);
+        metaweblog.getUsersBlogs("cnblogWriteVsCode", userName, password, function getUsersBlogsCallBakc(err, method, backData) {
 
-                let password = passwordParams;
-                let metaweblog = new Metaweblog(apiUrl);
-                metaweblog.getUsersBlogs("cnblogWriteVsCode", name, password, function getUsersBlogsCallBakc(err, method, backData) {
+            if (backData.faultCode) {
+                vscode.window.showErrorMessage(backData.faultString);
+                return;
+            }
+            let blogConfig = {};
+            blogConfig["config"] = {
+                apiUrl: apiUrl,
+                blogid: backData[0].blogid,
+                name: userName,
+                password: password
+            };
+            blogConfig["metaweblog"] = metaweblog;
+            _blogConfig = blogConfig;
 
-                    if (backData.faultCode) {
-                        vscode.window.showErrorMessage(backData.faultString);
-                        return;
-                    }
-                    let blogConfig = {};
-                    blogConfig["config"] = {
-                        apiUrl: apiUrl,
-                        blogid: backData[0].blogid,
-                        name: name,
-                        password: password
-                    };
-                    blogConfig["metaweblog"] = metaweblog;
-                    _blogConfig = blogConfig;
-
-                    if (callBakc) callBakc(blogConfig);
-                });
-            });
+            if (callBakc) callBakc(blogConfig);
         });
     });
 }
