@@ -1,11 +1,11 @@
-"use strict"
+"use strict";
 import {  window, workspace, TextEditor, QuickPickOptions, QuickPickItem } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
 export class FileController {
 
-  public createFile(newFileName): Promise<string> {
+  public createFile(newFileName : string): Promise<string> {
     return new Promise(function (resolve, reject) {
       let fileExists: boolean = fs.existsSync(newFileName);
 
@@ -25,7 +25,7 @@ export class FileController {
     });
   }
 
-  public openFileInEditor(fileName): Promise<TextEditor> {
+  public openFileInEditor(fileName : string): Promise<TextEditor> {
     return new Promise(function (resolve, reject) {
 
       workspace.openTextDocument(fileName).then((textDocument) => {
@@ -44,7 +44,7 @@ export class FileController {
     });
   }
 
-  public determineFullPath(filePath): Promise<string> {
+  public determineFullPath(filePath :string): Promise<string> {
     let that = this;
     return new Promise(function (resolve, reject) {
 
@@ -52,25 +52,23 @@ export class FileController {
         return that.inputPath(resolve, reject,filePath);
       }
 
-      const root: string = window.activeTextEditor ? window.activeTextEditor.document.fileName : workspace.rootPath;
-
       if (window.activeTextEditor) {
         if (window.activeTextEditor.document.isUntitled) {
           return that.inputPath(resolve, reject,filePath);
         }else{
-          return resolve(path.join(root, '..', filePath));
+          return resolve(path.join(window.activeTextEditor.document.fileName , '..', filePath));
         }
       } else {
-        return resolve(path.join(root, filePath));
+        return resolve(path.join(workspace.workspaceFolders?workspace.workspaceFolders[0].name:"", filePath));
       }
 
     });
 
   }
   
-  private inputPath(resolve, reject,filePath){
-    const homePath: string = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-          let suggestedPath: string = path.join(homePath, filePath);
+  private inputPath(resolve: (value?: string | PromiseLike<string> | undefined) => void, reject: (reason?: any) => void,filePath: string){
+    const homePath: string|& undefined = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'] ;
+          let suggestedPath: string = path.join(homePath?homePath:"", filePath);
 
           const options: QuickPickOptions = {
             matchOnDescription: true,

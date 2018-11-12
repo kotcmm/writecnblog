@@ -4,7 +4,7 @@ var request = require('request');
 var xml2js = require('xml2js');
 
 export class Xmlrpc {
-    private options;
+    private options: { url: string; headers: string; method: string; body: string; };
     constructor(rpc_url: string) {
         this.options = {
             url: rpc_url,
@@ -19,7 +19,7 @@ export class Xmlrpc {
         var that = this;
         
         var len = params.length - 1;
-        var callback = params[len]
+        var callback = params[len];
         
         var paramsData = [];
         for(var i = 0; i < len; i++) {
@@ -28,12 +28,11 @@ export class Xmlrpc {
     
         this.options.body = this.xmlSerialize(paramsData);
         
-        request(this.options, function (error, response, body) {
-            xml2js.parseString(body, function (err, result) {
-                var backData = that._parse(result)
+        request(this.options, function (error:any, response:any,body:any) {
+            xml2js.parseString(body, function (err:any, result:any) {
+                var backData = that._parse(result);
                 if(callback){
-                    var method = params[0];
-                    callback(err, method, backData);
+                    callback(backData);
                 }
             });
         });
@@ -57,7 +56,7 @@ export class Xmlrpc {
         return doc.join('\n');
     }
 
-    private paramsSerialize(data, d) {
+    private paramsSerialize(data: any, d: any) {
         switch (data.constructor.name) {
             case 'Array':
                 d.push('<array><data>');
@@ -104,43 +103,42 @@ export class Xmlrpc {
         }
     }
 
-    private escape(s) {
+    private escape(s: any) {
         return String(s)
             .replace(/&(?!\w+;)/g, '&amp;')
             .replace(/@/g, '&#64;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
-    };
+    }
 
-    private _parse(result) {
+    private _parse(result: any):any {
         if (Array.isArray(result)) {
             return this._parse(result[0]);
         } else {
             for (var key in result) {
                 if (result.hasOwnProperty(key)) {
-                    if (key == "methodResponse") {
+                    if (key === "methodResponse") {
                         var methodResponse = result[key];
                         return this._parse(methodResponse);
                     }
 
-                    if (key == "params") {
+                    if (key === "params") {
                         var params = result[key];
                         return this._parse(params);
                     }
 
-                    if (key == "param") {
+                    if (key === "param") {
                         var param = result[key];
                         return this._parse(param);
                     }
 
-                    if (key == "fault") {
+                    if (key === "fault") {
                         var fault = result[key];
                         return this._parse(fault);
                     }
 
-                    if (key == "value") {
-                        var dataArray = new Array();
+                    if (key === "value") {
                         return this.valueParse(result[key]);
                     }
                 }
@@ -150,7 +148,7 @@ export class Xmlrpc {
     }
 
 
-    private valueParse(result) {
+    private valueParse(result: any):any {
         if (Array.isArray(result)) {
             return this.valueParse(result[0]);
         } else {
@@ -166,17 +164,18 @@ export class Xmlrpc {
                 } else if (name === 'value') {
                     var dataArray = [];
                     var values = result.value;
-                    for (var i = 0, l = values.length; i < l; i++) {
+                    for (let i = 0; i < values.length; i++) {
                         var value = values[i];
                         dataArray[i] = this.valueParse(value);
                     }
                     return dataArray;
                 } else if (name === 'member') {
-                    var data = {};
+                    var data :{[key: string]: string;}={};
                     var members = result.member;
-                    for (var i = 0, l = members.length; i < l; i++) {
+                    for (let i = 0; i < members.length; i++) {
                         var member = members[i];
-                        data[member.name[0]] = this.valueParse(member.value[0]);
+                        const name :string=member.name[0];
+                        data[name] = this.valueParse(member.value[0]);
                     }
                     return data;
                 } else {
