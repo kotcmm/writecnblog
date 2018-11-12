@@ -5,7 +5,7 @@ import * as path from 'path';
 
 export class ImageToBase64 {
 
-    convertFile(fileUrl) {
+    convertFile(fileUrl:string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let fileInfo = that.fileInfo(fileUrl);
@@ -26,7 +26,7 @@ export class ImageToBase64 {
     }
     
     private fileInfo(fileUrl:string):any{
-        let fileInfo = {};
+        let fileInfo :{[key: string]: string;}={};
         let imageTypeExtensions = ['png','jpg','gif'];
         imageTypeExtensions.forEach(extensionName=>{
             let extname = path.extname(fileUrl);

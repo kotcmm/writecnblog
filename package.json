@@ -1,100 +1,105 @@
 {
-  "name": "writecnblog",
-  "displayName": "WriteCnblog",
-  "description": "write blog to Cnblog",
-  "version": "0.0.2",
-  "publisher": "caipeiyu",
-  "author": {
-    "name": "caipeiyu",
-    "email": "kotcmm@sina.com"
-  },
-  "license": "Apache Licene 2.0",
-  "bugs": {
-    "url": "https://github.com/kotcmm/writecnblog/issues",
-    "email": "kotcmm@sina.com"
-  },
-  "homepage": "https://github.com/kotcmm/writecnblog/blob/master/README.md",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kotcmm/writecnblog.git"
-  },
-  "engines": {
-    "vscode": "^0.10.10"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:extension.writeCnblog.newPost",
-    "onCommand:extension.writeCnblog.savePost",
-    "onCommand:extension.writeCnblog.editNewPost",
-    "onCommand:extension.writeCnblog.editSavePost",
-    "onCommand:extension.writeCnblog.recentPosts",
-    "onCommand:extension.writeCnblog.newMediaObject"
-  ],
-  "main": "./out/src/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.writeCnblog.newPost",
-        "title": "Cnblog:发布博文"
-      },
-      {
-        "command": "extension.writeCnblog.savePost",
-        "title": "Cnblog:保存草稿"
-      },
-      {
-        "command": "extension.writeCnblog.editNewPost",
-        "title": "Cnblog:更新并发布博文"
-      },
-      {
-        "command": "extension.writeCnblog.editSavePost",
-        "title": "Cnblog:更新并保存草稿"
-      },
-      {
-        "command": "extension.writeCnblog.recentPosts",
-        "title": "Cnblog:获取文章"
-      },
-      {
-        "command": "extension.writeCnblog.newMediaObject",
-        "title": "Cnblog:上传图片"
-      }
+    "name": "writeCnblog",
+    "displayName": "WriteCnblog",
+    "description": "write blog to Cnblog",
+    "version": "0.0.5",
+    "publisher": "jake",
+    "engines": {
+        "vscode": "^1.28.0"
+    },
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/GuojieLin/writeCnblog/issues"
+    },
+    "homepage": "https://github.com/GuojieLin/writeCnblog/blob/master/README.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GuojieLin/writeCnblog.git"
+    },
+    "categories": [
+        "Other"
     ],
-    "configuration": {
-      "type": "object",
-      "title": "writeCnblog configuration",
-      "properties": {
-        "writeCnblog.apiUrl": {
-          "type": "string",
-          "default": "",
-          "description": "http://rpc.cnblogs.com/metaweblog/+Blog地址名"
-        },
-        "writeCnblog.userName": {
-          "type": "string",
-          "default": "",
-          "description": "博客园的用户名"
+    "activationEvents": [
+        "onLanguage:markdown",
+        "onCommand:extension.writeCnblog.newPost",
+        "onCommand:extension.writeCnblog.savePost",
+        "onCommand:extension.writeCnblog.editNewPost",
+        "onCommand:extension.writeCnblog.editSavePost",
+        "onCommand:extension.writeCnblog.recentPosts",
+        "onCommand:extension.writeCnblog.newMediaObject"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.writeCnblog.newPost",
+                "title": "Cnblog:发布博文"
+            },
+            {
+                "command": "extension.writeCnblog.savePost",
+                "title": "Cnblog:保存草稿"
+            },
+            {
+                "command": "extension.writeCnblog.editNewPost",
+                "title": "Cnblog:更新并发布博文"
+            },
+            {
+                "command": "extension.writeCnblog.editSavePost",
+                "title": "Cnblog:更新并保存草稿"
+            },
+            {
+                "command": "extension.writeCnblog.recentPosts",
+                "title": "Cnblog:获取文章"
+            },
+            {
+                "command": "extension.writeCnblog.newMediaObject",
+                "title": "Cnblog:上传图片"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "extension.writeCnblog.newMediaObject",
+                "key": "shift+i",
+                "mac": "shift+i",
+                "when": "editorTextFocus && editorLangId == 'markdown'"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "writeCnblog configuration",
+            "properties": {
+                "writeCnblog.blogName": {
+                    "type": "string",
+                    "default": "",
+                    "description": "博客园的Blog地址名"
+                },
+                "writeCnblog.userName": {
+                    "type": "string",
+                    "default": "",
+                    "description": "博客园的用户名"
+                },
+                "writeCnblog.passWord": {
+                    "type": "string",
+                    "default": "",
+                    "description": "博客园的用户名"
+                }
+            }
         }
-      }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.21",
+        "tslint": "^5.8.0",
+        "@types/node": "^8.10.25",
+        "@types/mocha": "^2.2.42",
+        "xml2js": "^0.4.19",
+        "request": "^2.88.0"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install"
-  },
-  "devDependencies": {
-    "electron": "^1.5.1",
-    "electron-rebuild": "^1.5.11",
-    "keytar": "^4.0.2",
-    "typescript": "^1.8.5",
-    "vscode": "^0.11.0",
-    "xml2js": "^0.4.16"
-  },
-  "dependencies": {
-    "electron": "^1.6.2",
-    "keytar": "^4.0.2",
-    "request": "^2.69.0",
-    "vscode": "^0.11.0",
-    "xml2js": "^0.4.16"
-  }
 }

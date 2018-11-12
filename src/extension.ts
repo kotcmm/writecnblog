@@ -1,60 +1,82 @@
 'use strict';
-
+// The module 'vscode' contains the VS Code extensibility API
+// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-//import TelemetryReporter from 'vscode-extension-telemetry';
-import { Metaweblog } from './metaweblog'
-import { CnblogPickItem } from './CnblogPickItem'
-import { ImageToBase64 } from './ImageToBase64'
-import { FileController } from './FileController'
-var keytar = require('keytar');
 
+import { Metaweblog } from './metaweblog';
+import { CnblogPickItem } from './CnblogPickItem';
+import { ImageToBase64 } from './ImageToBase64';
+import { FileController } from './FileController';
+import { error } from 'util';
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
+    // This line of code will only be executed once when your extension is activated
+    console.log('Congratulations, your extension "writeCnblog" is now active!');
+
+    // The command has been defined in the package.json file
+    // Now provide the implementation of the command with  registerCommand
+    // The commandId parameter must match the command field in package.json
+    let disposable = vscode.commands.registerCommand('extension.writeCnblog.sayHello', () => {
+        // The code you place here will be executed every time your command is executed
+
+        // Display a message box to the user
+        vscode.window.showInformationMessage('Hello World!');
+    });
+
     let newPostDisposable = vscode.commands.registerCommand('extension.writeCnblog.newPost', () => {
-        getBlogConfig(function initConfig(blogConfig) {
+        getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             newPost(blogConfig.config, blogConfig.metaweblog, true);
         });
     });
 
-    let savePostDisposable = vscode.commands.registerCommand('extension.writeCnblog.savePost', () => {
-        getBlogConfig(function initConfig(blogConfig) {
+    let savePostDisposable = vscode.commands.registerCommand('extension.savePost', () => {
+        getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             newPost(blogConfig.config, blogConfig.metaweblog, false);
         });
     });
 
     let editNewPostDisposable = vscode.commands.registerCommand('extension.writeCnblog.editNewPost', () => {
-        getBlogConfig(function initConfig(blogConfig) {
+        getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             editPost(blogConfig.config, blogConfig.metaweblog, true);
         });
     });
 
     let editSavePostDisposable = vscode.commands.registerCommand('extension.writeCnblog.editSavePost', () => {
-        getBlogConfig(function initConfig(blogConfig) {
+        getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             editPost(blogConfig.config, blogConfig.metaweblog, false);
         });
     });
 
     let recentPostsDisposable = vscode.commands.registerCommand('extension.writeCnblog.recentPosts', () => {
-        getBlogConfig(function initConfig(blogConfig) {
+        getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             getRecentPosts(blogConfig.config, blogConfig.metaweblog);
         });
     });
 
     let newMediaObjectDisposable = vscode.commands.registerCommand('extension.writeCnblog.newMediaObject', () => {
-        let edit = vscode.window.activeTextEditor;
+        const edit = vscode.window.activeTextEditor;
         if (!edit) {
             vscode.window.showErrorMessage("没有打开编辑窗口");
+            return;
         }
+        vscode.window.showOpenDialog({
 
-        let imageUrl = vscode.window.showInputBox({ prompt: "输入要上传图片路径" }).then(
-            function url(imageUrl) {
-                if (imageUrl) {
+            filters: { 'Images': ['png', 'jpg', 'gif', 'bmp'] }
+
+        }).then(result => {
+
+            if (result) {
+                const { fsPath } = result[0];
+                if (fsPath) {
                     var imagetobase64 = new ImageToBase64();
-                    imagetobase64.convertFile(imageUrl).then(function (fileinfo) {
+                    imagetobase64.convertFile(fsPath).then(function (fileinfo) {
                         if (fileinfo) {
-                            getBlogConfig(function initConfig(blogConfig) {
+                            getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
                                 newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fileinfo);
                             });
                         }
@@ -66,9 +88,9 @@ export function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage("没有选择要上传图片的地址");
                 }
             }
-        );
+        }, error);
     });
-
+    context.subscriptions.push(disposable);
     context.subscriptions.push(newPostDisposable);
     context.subscriptions.push(savePostDisposable);
     context.subscriptions.push(editNewPostDisposable);
@@ -77,55 +99,60 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(newMediaObjectDisposable);
 }
 
-function getBlogConfig(callBakc) {
+function getBlogConfig(callBakc: (blogConfig: any) => void) {
 
     if (_blogConfig && callBakc) {
         callBakc(_blogConfig);
         return;
-    };
+    }
 
-    let apiUrl = vscode.workspace.getConfiguration('writeCnblog').get<string>('apiUrl');
+    let blogName = vscode.workspace.getConfiguration('writeCnblog').get<string>('blogName');
+    if(!blogName)
+    {        
+        vscode.window.showErrorMessage("在配置中配置:writeCnblog.blogName");
+        return;
+    }
     let userName = vscode.workspace.getConfiguration('writeCnblog').get<string>('userName');
+    if(!userName)
+    {        
+        vscode.window.showErrorMessage("在配置中配置:writeCnblog.userName");
+        return;
+    }
+    let passWord = vscode.workspace.getConfiguration('writeCnblog').get<string>('passWord');
+    if(!passWord)
+    {        
+        vscode.window.showErrorMessage("在配置中配置:writeCnblog.passWord");
+        return;
+    }
+    const apiUrl = "http://rpc.cnblogs.com/metaweblog/"+blogName;
+    let metaweblog = new Metaweblog(apiUrl);
+    metaweblog.getUsersBlogs("cnblogWriteVsCode", userName, passWord, function getUsersBlogsCallBakc(backData :any) {
 
-    //var password = keytar.getPassword(extensionId, userName);
+        if (backData.faultCode) {
+            vscode.window.showErrorMessage(backData.faultString);
+            return;
+        }
+        let blogConfig  :{[key: string]: any}={};
+        blogConfig["config"] = {
+            apiUrl: apiUrl,
+            blogid: backData[0].blogid,
+            name: userName,
+            password: passWord
+        };
+        blogConfig["metaweblog"] = metaweblog;
+        _blogConfig = blogConfig;
 
-    //var r = keytar.setPassword("writecnblog","abc","abc");
-
-    let passwordResult = vscode.window.showInputBox({ prompt: "输入密码", password: true });
-    passwordResult.then(function passwordInputThen(passwordParams) {
-
-        if (passwordParams == undefined) return;
-
-        let password = passwordParams;
-        let metaweblog = new Metaweblog(apiUrl);
-        metaweblog.getUsersBlogs("cnblogWriteVsCode", userName, password, function getUsersBlogsCallBakc(err, method, backData) {
-
-            if (backData.faultCode) {
-                vscode.window.showErrorMessage(backData.faultString);
-                return;
-            }
-            let blogConfig = {};
-            blogConfig["config"] = {
-                apiUrl: apiUrl,
-                blogid: backData[0].blogid,
-                name: userName,
-                password: password
-            };
-            blogConfig["metaweblog"] = metaweblog;
-            _blogConfig = blogConfig;
-
-            if (callBakc) callBakc(blogConfig);
-        });
+        if (callBakc) { callBakc(blogConfig); }
     });
 }
 
-function getRecentPosts(config, metaweblog: Metaweblog) {
-    metaweblog.getRecentPosts(config.blogid, config.name, config.password, 10, callBakc);
+function getRecentPosts(config: any, metaweblog: Metaweblog) {
+    metaweblog.getRecentPosts(config.blogid, config.name, config.password, 10, callBack);
 }
 
-function newMediaObject(config, metaweblog: Metaweblog, edit, file) {
+function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEditor, file: {}) {
 
-    metaweblog.newMediaObject(config.blogid, config.name, config.password, file, function name(err, method, backData) {
+    metaweblog.newMediaObject(config.blogid, config.name, config.password, file, function name(backData: { faultCode: any; faultString: string; url: any; }) {
         if (backData.faultCode) {
             vscode.window.showErrorMessage(backData.faultString);
             return;
@@ -137,17 +164,17 @@ function newMediaObject(config, metaweblog: Metaweblog, edit, file) {
     });
 }
 
-function newPost(config, metaweblog: Metaweblog, publish: boolean) {
+function newPost(config: any, metaweblog: Metaweblog, publish: boolean) {
     let textEditor = vscode.window.activeTextEditor;
     if (textEditor) {
         let title = titleName(textEditor.document.fileName);
         updateCheck(title).then(() => {
             let post = {
                 title: title,
-                description: textEditor.document.getText(),
+                description: textEditor?textEditor.document.getText():"",
                 categories: ["[Markdown]"]
             };
-            metaweblog.newPos(config.blogid, config.name, config.password, post, publish, callBakc);
+            metaweblog.newPos(config.blogid, config.name, config.password, post, publish, callBack);
         });
 
     } else {
@@ -155,7 +182,7 @@ function newPost(config, metaweblog: Metaweblog, publish: boolean) {
     }
 }
 
-function editPost(config, metaweblog: Metaweblog, publish: boolean) {
+function editPost(config: any, metaweblog: Metaweblog, publish: boolean) {
     let textEditor = vscode.window.activeTextEditor;
     if (textEditor) {
         let title = titleName(textEditor.document.fileName);
@@ -171,13 +198,13 @@ function editPost(config, metaweblog: Metaweblog, publish: boolean) {
             description: textEditor.document.getText(),
             categories: ["[Markdown]"]
         };
-        metaweblog.editPos(postid, config.name, config.password, post, publish, callBakc);
+        metaweblog.editPos(postid, config.name, config.password, post, publish, callBack);
     } else {
         vscode.window.showErrorMessage("没有打开要发布的文章！");
     }
 }
 
-function callBakc(err, method, backData) {
+function callBack(method:string, backData: any) {
 
     if (backData.faultCode) {
         vscode.window.showErrorMessage(backData.faultString);
@@ -194,26 +221,25 @@ function callBakc(err, method, backData) {
             }
             var pick = vscode.window.showQuickPick(blogTitle);
 
-            pick.then(function name(params: CnblogPickItem) {
-                if (!params) return;
+            pick.then(function name(params: CnblogPickItem|undefined) {
+                if (!params) { return; }
 
-                if (_blogConfig) {
-                    let blogConfig = _blogConfig;
-                    blogConfig.metaweblog.getPost(params.detail, blogConfig.config.name, blogConfig.config.password, callBakc);
-                };
             });
             break;
         case "metaWeblog.newPost":
             vscode.window.showInformationMessage("添加文章成功，文章编号：" + backData);
+            if(vscode.window.activeTextEditor){
             let oldPath = vscode.window.activeTextEditor.document.fileName;
             let basename = path.basename(oldPath);
             let newPath = path.join(oldPath, "..", `[${backData}]${basename}`);
-            fs.rename(oldPath, newPath);
-            File.openFileInEditor(newPath).catch((err) => {
-                if (err) {
-                    vscode.window.showErrorMessage(err);
-                }
-            });
+            fs.rename(oldPath, newPath,() => {
+                File.openFileInEditor(newPath).catch((err) => {
+                    if (err) {
+                        vscode.window.showErrorMessage(err);
+                    }
+                });
+             });
+        }
             break;
         case "metaWeblog.editPost":
             vscode.window.showInformationMessage("更新文章成功：" + backData);
@@ -225,7 +251,9 @@ function callBakc(err, method, backData) {
                 .then(File.openFileInEditor)
                 .then((textEditor) => {
                     textEditor.edit(function editDocument(editParams) {
+                        if(vscode.window.activeTextEditor){
                         editParams.insert(vscode.window.activeTextEditor.selection.active, backData.description);
+                        }
                     });
                 })
                 .catch((err) => {
@@ -246,14 +274,14 @@ function titleWithoutPostId(titleName: string): string {
 
 function getPostId(titleName: string): string {
     let idMatch = titleName.match(/\[\d+]/);
-    return idMatch ? idMatch[0].replace("[", "").replace("]", "") : null;
+    return idMatch ? idMatch[0].replace("[", "").replace("]", "") : "";
 }
 
 function titleName(fileName: string): string {
     return path.parse(fileName).name;
 }
 
-function updateCheck(titleName) {
+function updateCheck(titleName: string) {
     return new Promise((resolve, reject) => {
 
         let idMatch = titleName.match(/\[\d+]/);
@@ -282,9 +310,7 @@ function updateCheck(titleName) {
         });
     });
 }
-
 // this method is called when your extension is deactivated
 export function deactivate() {
 }
-
-let _blogConfig = undefined;
+let _blogConfig: { [key: string]: any; } | undefined = undefined;
