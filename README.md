@@ -26,6 +26,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.6
+
+插入的图片加上本地文件名，如`![本地文件名](图片url)`
+
 ### 0.0.5
 
 修复配置可以被读取到。

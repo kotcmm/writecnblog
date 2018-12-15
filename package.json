@@ -2,7 +2,7 @@
     "name": "writeCnblog",
     "displayName": "WriteCnblog",
     "description": "write blog to Cnblog",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "jake",
     "engines": {
         "vscode": "^1.28.0"
