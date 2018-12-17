@@ -21,13 +21,6 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.writeCnblog.sayHello', () => {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
-    });
-
     let newPostDisposable = vscode.commands.registerCommand('extension.writeCnblog.newPost', () => {
         getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
             newPost(blogConfig.config, blogConfig.metaweblog, true);
@@ -74,10 +67,10 @@ export function activate(context: vscode.ExtensionContext) {
                 const { fsPath } = result[0];
                 if (fsPath) {
                     var imagetobase64 = new ImageToBase64();
-                    imagetobase64.convertFile(fsPath).then(function (fileinfo) {
+                    imagetobase64.convertFile(fsPath).then(function (fileinfo ) {
                         if (fileinfo) {
                             getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
-                                newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fileinfo);
+                                newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fsPath,fileinfo);
                             });
                         }
                     }, function reject(params) {
@@ -90,7 +83,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }, error);
     });
-    context.subscriptions.push(disposable);
     context.subscriptions.push(newPostDisposable);
     context.subscriptions.push(savePostDisposable);
     context.subscriptions.push(editNewPostDisposable);
@@ -150,14 +142,16 @@ function getRecentPosts(config: any, metaweblog: Metaweblog) {
     metaweblog.getRecentPosts(config.blogid, config.name, config.password, 10, callBack);
 }
 
-function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEditor, file: {}) {
+function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEditor,filePath:string, file:{}) {
 
     metaweblog.newMediaObject(config.blogid, config.name, config.password, file, function name(backData: { faultCode: any; faultString: string; url: any; }) {
         if (backData.faultCode) {
             vscode.window.showErrorMessage(backData.faultString);
             return;
         }
-        var url = `![](${backData.url})`;
+        const ext = path.extname(filePath);
+        const fileName =  path.basename(filePath,ext);
+        var url = `![${fileName}](${backData.url})`;
         edit.edit(function editDocument(editParams) {
             editParams.insert(edit.selection.active, url);
         });
