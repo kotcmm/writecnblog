@@ -10,6 +10,7 @@ For example if there is an image subfolder under your extension project workspac
 
 \!\[feature X\]\(images/feature-x.png\)
 
+
 ## Requirements
 
 需要vs code版本在1.1.21以上。
@@ -25,6 +26,10 @@ This extension contributes the following settings:
 ## Known Issues
 
 ## Release Notes
+
+### 0.0.8
+
+将剪切板的图片直接保存本地并上传到博客园。
 
 ### 0.0.6
 

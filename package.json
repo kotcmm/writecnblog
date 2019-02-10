@@ -2,10 +2,10 @@
     "name": "writeCnblog",
     "displayName": "WriteCnblog",
     "description": "write blog to Cnblog",
-    "version": "0.0.6",
+    "version": "0.0.8",
     "publisher": "jake",
     "engines": {
-        "vscode": "^1.28.0"
+        "vscode": "^1.31.0"
     },
     "license": "Apache-2.0",
     "bugs": {
@@ -26,12 +26,12 @@
         "onCommand:extension.writeCnblog.editNewPost",
         "onCommand:extension.writeCnblog.editSavePost",
         "onCommand:extension.writeCnblog.recentPosts",
-        "onCommand:extension.writeCnblog.newMediaObject"
+        "onCommand:extension.writeCnblog.newMediaObject",
+        "onCommand:extension.writeCnblog.postImageFromClipboard"
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "extension.writeCnblog.newPost",
                 "title": "Cnblog:发布博文"
             },
@@ -54,13 +54,22 @@
             {
                 "command": "extension.writeCnblog.newMediaObject",
                 "title": "Cnblog:上传图片"
+            },
+            {
+                "command": "extension.writeCnblog.postImageFromClipboard",
+                "title": "Cnblog:获取剪贴板图片上传"
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "command": "extension.writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
+                "when": "editorTextFocus && editorLangId == 'markdown'"
+            },
+            {
+                "command": "extension.writeCnblog.postImageFromClipboard",
+                "key": "shift+alt+i",
+                "mac": "shift+alt+i",
                 "when": "editorTextFocus && editorLangId == 'markdown'"
             }
         ],
@@ -98,8 +107,11 @@
         "vscode": "^1.1.21",
         "tslint": "^5.8.0",
         "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42",
+        "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "request": "^2.88.0",
         "xml2js": "^0.4.19",
-        "request": "^2.88.0"
+        "moment": "^2.24.0"
     }
 }

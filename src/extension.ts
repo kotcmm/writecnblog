@@ -10,6 +10,10 @@ import { CnblogPickItem } from './CnblogPickItem';
 import { ImageToBase64 } from './ImageToBase64';
 import { FileController } from './FileController';
 import { error } from 'util';
+import { spawn } from 'child_process';
+import * as moment from 'moment';
+
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -65,31 +69,149 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (result) {
                 const { fsPath } = result[0];
-                if (fsPath) {
-                    var imagetobase64 = new ImageToBase64();
-                    imagetobase64.convertFile(fsPath).then(function (fileinfo ) {
-                        if (fileinfo) {
-                            getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
-                                newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fsPath,fileinfo);
-                            });
-                        }
-                    }, function reject(params) {
-                        vscode.window.showErrorMessage(params);
-                    });
-
-                } else {
-                    vscode.window.showErrorMessage("没有选择要上传图片的地址");
-                }
+                
+                //上传图片
+                pushImage(fsPath,edit);
+            
             }
         }, error);
     });
+
+    let postImageFromClipboardDisposable = vscode.commands.registerCommand('extension.writeCnblog.postImageFromClipboard', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage("没有打开编辑窗口");
+            return;
+        }
+        
+        let folderPath = path.dirname(editor.document.fileName);
+        let ext = path.extname(editor.document.fileName);
+        let fileName = path.basename(editor.document.fileName,ext);
+
+        let fileNameWithoutExt = moment().format("YYYYMMDDHHmmss") + ".png";
+        let imagePath = path.join(folderPath,"Images",fileName,fileNameWithoutExt);
+        
+        saveClipboardImageToFileAndGetPath(imagePath, (imagePath, imagePathReturnByScript) => {
+            if (!imagePathReturnByScript) { return; }
+            if (imagePathReturnByScript === 'no image') {
+                vscode.window.showErrorMessage('There is not a image in clipboard.');
+                return;
+            }
+            //上传图片
+            pushImage(imagePath,editor);
+        });
+    });
+
     context.subscriptions.push(newPostDisposable);
     context.subscriptions.push(savePostDisposable);
     context.subscriptions.push(editNewPostDisposable);
     context.subscriptions.push(editSavePostDisposable);
     context.subscriptions.push(recentPostsDisposable);
     context.subscriptions.push(newMediaObjectDisposable);
+    context.subscriptions.push(postImageFromClipboardDisposable);
 }
+
+
+    /**
+     * use applescript to save image from clipboard and get file path
+     * 这个代码是从 paste image插件拷贝而来，源项目在https://github.com/mushanshitiancai/vscode-paste-image
+     * 通过下端代码支持从剪切板直接读取图片数据流保存到本地文件，并上传到博客园。
+     */
+    function saveClipboardImageToFileAndGetPath(imagePath:string, cb: (imagePath: string, imagePathFromScript: string) => void) {
+        if (!imagePath) { return; }
+
+        let platform = process.platform;
+        if (platform === 'win32') {
+            // Windows
+            const scriptPath = path.join(__dirname, '../res/pc.ps1');
+
+            let command = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+            let powershellExisted = fs.existsSync(command);
+            if (!powershellExisted) {
+                command = "powershell";
+            }
+
+            const powershell = spawn(command, [
+                '-noprofile',
+                '-noninteractive',
+                '-nologo',
+                '-sta',
+                '-executionpolicy', 'unrestricted',
+                '-windowstyle', 'hidden',
+                '-file', scriptPath,
+                imagePath
+            ]);
+            powershell.on('error', function (e :Error) {
+                if (e.message === "ENOENT") {
+                    vscode.window.showErrorMessage(`The powershell command is not in you PATH environment variables.Please add it and retry.`);
+                } else {               
+                    vscode.window.showErrorMessage(e.message + e.stack);
+                }
+            });
+            powershell.on('exit', function (code, signal) {
+                // console.log('exit', code, signal);
+            });
+            powershell.stdout.on('data', function (data: Buffer) {
+                cb(imagePath, data.toString().trim());
+            });
+        }
+        else if (platform === 'darwin') {
+            // Mac
+            let scriptPath = path.join(__dirname, '../res/mac.applescript');
+
+            let ascript = spawn('osascript', [scriptPath, imagePath]);
+            ascript.on('error', function (e) {
+                vscode.window.showErrorMessage(e.message + e.stack);
+            });
+            ascript.on('exit', function (code, signal) {
+                // console.log('exit',code,signal);
+            });
+            ascript.stdout.on('data', function (data: Buffer) {
+                cb(imagePath, data.toString().trim());
+            });
+        } else {
+            // Linux 
+
+            let scriptPath = path.join(__dirname, '../res/linux.sh');
+
+            let ascript = spawn('sh', [scriptPath, imagePath]);
+            ascript.on('error', function (e) {
+                vscode.window.showErrorMessage(e.message + e.stack);
+            });
+            ascript.on('exit', function (code, signal) {
+                // console.log('exit',code,signal);
+            });
+            ascript.stdout.on('data', function (data: Buffer) {
+                let result = data.toString().trim();
+                if (result === "no xclip") {
+                    vscode.window.showErrorMessage('You need to install xclip command first.');
+                    return;
+                }
+                cb(imagePath, result);
+            });
+        }
+    }
+
+
+function pushImage(fsPath:string,edit : vscode.TextEditor)
+{
+    if (fsPath) {
+        var imagetobase64 = new ImageToBase64();
+        imagetobase64.convertFile(fsPath).then(function (fileinfo ) {
+            if (fileinfo) {
+                getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
+                    newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fsPath,fileinfo);
+                });
+            }
+        }, function reject(params) {
+            vscode.window.showErrorMessage(params);
+        });
+
+    } else {
+        vscode.window.showErrorMessage("没有选择要上传图片的地址");
+    }
+}
+
 
 function getBlogConfig(callBakc: (blogConfig: any) => void) {
 
@@ -149,8 +271,7 @@ function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEd
             vscode.window.showErrorMessage(backData.faultString);
             return;
         }
-        const ext = path.extname(filePath);
-        const fileName =  path.basename(filePath,ext);
+        const fileName =  path.basename(filePath);
         var url = `![${fileName}](${backData.url})`;
         edit.edit(function editDocument(editParams) {
             editParams.insert(edit.selection.active, url);
