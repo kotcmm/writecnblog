@@ -10,6 +10,7 @@ For example if there is an image subfolder under your extension project workspac
 
 \!\[feature X\]\(images/feature-x.png\)
 
+
 ## Requirements
 
 需要vs code版本在1.1.21以上。
@@ -25,6 +26,10 @@ This extension contributes the following settings:
 ## Known Issues
 
 ## Release Notes
+
+### 0.0.8
+
+将剪切板的图片直接保存本地并上传到博客园。
 
 ### 0.0.6
 
@@ -46,7 +51,9 @@ This extension contributes the following settings:
 
 ## Working with Markdown
 
-* 通过 (`Shift+i` on macOS or `Shift+i` on Windows and Linux)选择一个需要上传的图片，上传成功会返回一个`![](图片url)`
+* 通过 (`Shift+i` on macOS or `Shift+i` on Windows and Linux)选择一个需要上传的图片，上传成功会返回一个`![图片名](图片url)`
+
+* 通过 (`Shift+Alt+i` on macOS or `Shift+Alt+i` on Windows and Linux)从剪切板读取图片保存到当前markdown目录的Images/markdown文件名/中并上传的图片，上传成功会返回一个`![图片名](图片url)`
 
 ### For more information
 
