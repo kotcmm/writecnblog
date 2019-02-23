@@ -90,7 +90,7 @@
                 "writeCnblog.passWord": {
                     "type": "string",
                     "default": "",
-                    "description": "博客园的用户名"
+                    "description": "博客园的密码"
                 }
             }
         }
@@ -103,15 +103,16 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.21",
-        "tslint": "^5.8.0",
+        "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.30"
     },
     "dependencies": {
+        "mkdirp": "^0.5.1",
+        "moment": "^2.24.0",
         "request": "^2.88.0",
-        "xml2js": "^0.4.19",
-        "moment": "^2.24.0"
+        "xml2js": "^0.4.19"
     }
 }
