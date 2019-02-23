@@ -27,6 +27,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.9
+
+没有文件夹时自动创建
+
 ### 0.0.8
 
 将剪切板的图片直接保存本地并上传到博客园。

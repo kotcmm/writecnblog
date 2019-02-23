@@ -2,7 +2,7 @@
     "name": "writeCnblog",
     "displayName": "WriteCnblog",
     "description": "write blog to Cnblog",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "publisher": "jake",
     "engines": {
         "vscode": "^1.31.0"
@@ -31,7 +31,8 @@
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "extension.writeCnblog.newPost",
                 "title": "Cnblog:发布博文"
             },
@@ -60,7 +61,8 @@
                 "title": "Cnblog:获取剪贴板图片上传"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "command": "extension.writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
