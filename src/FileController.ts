@@ -98,7 +98,7 @@ export class FileController {
               }
 
               return resolve(path.join(basePath, filePath));
-            })
+            });
           });
   }
 }

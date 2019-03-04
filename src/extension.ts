@@ -12,7 +12,7 @@ import { FileController } from './FileController';
 import { error } from 'util';
 import { spawn } from 'child_process';
 import * as moment from 'moment';
-
+var mkdirp = require('mkdirp');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -90,15 +90,21 @@ export function activate(context: vscode.ExtensionContext) {
 
         let fileNameWithoutExt = moment().format("YYYYMMDDHHmmss") + ".png";
         let imagePath = path.join(folderPath,"Images",fileName,fileNameWithoutExt);
-        
-        saveClipboardImageToFileAndGetPath(imagePath, (imagePath, imagePathReturnByScript) => {
-            if (!imagePathReturnByScript) { return; }
-            if (imagePathReturnByScript === 'no image') {
-                vscode.window.showErrorMessage('There is not a image in clipboard.');
-                return;
+        let dir = path.dirname(imagePath);
+        // create a directory if doesn't exist
+        mkdirp(dir,(err: string)=> { 
+            if (err) {  vscode.window.showErrorMessage(err) ; }
+            else {
+                saveClipboardImageToFileAndGetPath(imagePath, (imagePath, imagePathReturnByScript) => {
+                    if (!imagePathReturnByScript) { return; }
+                    if (imagePathReturnByScript === 'no image') {
+                        vscode.window.showErrorMessage('There is not a image in clipboard.');
+                        return;
+                    }
+                    //上传图片
+                    pushImage(imagePath,editor);
+                });
             }
-            //上传图片
-            pushImage(imagePath,editor);
         });
     });
 
