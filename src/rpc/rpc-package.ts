@@ -2,6 +2,7 @@ export interface MethodCall {
     methodName: String;
     params: any;
 }
+
 /**
  * 包含用户名和密码
  */

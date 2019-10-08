@@ -11,9 +11,11 @@ export class RpcXmlSerialize {
             for (var key in value.params) {
                 if (value.params.hasOwnProperty(key)) {
                     var element = value.params[key];
-                    doc.push('<param><value>');
-                    doc.push(this.paramBuild(element));
-                    doc.push('</value></param>');
+                    if(element){
+                        doc.push('<param><value>');
+                        doc.push(this.paramBuild(element));
+                        doc.push('</value></param>');
+                    }  
                 }
             }
             doc.push('</params>');
