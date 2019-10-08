@@ -1,20 +1,20 @@
 {
-    "name": "writeCnblog",
+    "name": "write-cnblog",
     "displayName": "WriteCnblog",
-    "description": "write blog to Cnblog",
-    "version": "0.0.9",
-    "publisher": "jake",
+    "description": "write blog to Cnblogs",
+    "version": "0.1.0",
+    "publisher": "caipeiyu",
     "engines": {
         "vscode": "^1.31.0"
     },
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/GuojieLin/writeCnblog/issues"
+        "url": "https://github.com/1024th/writeCnblog/issues"
     },
-    "homepage": "https://github.com/GuojieLin/writeCnblog/blob/master/README.md",
+    "homepage": "https://github.com/1024th/writeCnblog/blob/master/README.md",
     "repository": {
         "type": "git",
-        "url": "https://github.com/GuojieLin/writeCnblog.git"
+        "url": "https://github.com/1024th/writeCnblog.git"
     },
     "categories": [
         "Other"
@@ -106,10 +106,10 @@
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
-        "@types/node": "^8.10.25",
+        "@types/node": "^8.10.54",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.30"
+        "vscode": "^1.1.36"
     },
     "dependencies": {
         "mkdirp": "^0.5.1",

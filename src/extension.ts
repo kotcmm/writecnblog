@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "writeCnblog" is now active!');
+    // console.log('Congratulations, your extension "writeCnblog" is now active!');
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
@@ -69,10 +69,10 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (result) {
                 const { fsPath } = result[0];
-                
+
                 //上传图片
-                pushImage(fsPath,edit);
-            
+                pushImage(fsPath, edit);
+
             }
         }, error);
     });
@@ -83,17 +83,17 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage("没有打开编辑窗口");
             return;
         }
-        
+
         let folderPath = path.dirname(editor.document.fileName);
         let ext = path.extname(editor.document.fileName);
-        let fileName = path.basename(editor.document.fileName,ext);
+        let fileName = path.basename(editor.document.fileName, ext);
 
         let fileNameWithoutExt = moment().format("YYYYMMDDHHmmss") + ".png";
-        let imagePath = path.join(folderPath,"Images",fileName,fileNameWithoutExt);
+        let imagePath = path.join(folderPath, "Images", fileName, fileNameWithoutExt);
         let dir = path.dirname(imagePath);
         // create a directory if doesn't exist
-        mkdirp(dir,(err: string)=> { 
-            if (err) {  vscode.window.showErrorMessage(err) ; }
+        mkdirp(dir, (err: string) => {
+            if (err) { vscode.window.showErrorMessage(err); }
             else {
                 saveClipboardImageToFileAndGetPath(imagePath, (imagePath, imagePathReturnByScript) => {
                     if (!imagePathReturnByScript) { return; }
@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
                         return;
                     }
                     //上传图片
-                    pushImage(imagePath,editor);
+                    pushImage(imagePath, editor);
                 });
             }
         });
@@ -118,95 +118,94 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 
-    /**
-     * use applescript to save image from clipboard and get file path
-     * 这个代码是从 paste image插件拷贝而来，源项目在https://github.com/mushanshitiancai/vscode-paste-image
-     * 通过下端代码支持从剪切板直接读取图片数据流保存到本地文件，并上传到博客园。
-     */
-    function saveClipboardImageToFileAndGetPath(imagePath:string, cb: (imagePath: string, imagePathFromScript: string) => void) {
-        if (!imagePath) { return; }
+/**
+ * use applescript to save image from clipboard and get file path
+ * 这个代码是从 paste image插件拷贝而来，源项目在https://github.com/mushanshitiancai/vscode-paste-image
+ * 通过下端代码支持从剪切板直接读取图片数据流保存到本地文件，并上传到博客园。
+ */
+function saveClipboardImageToFileAndGetPath(imagePath: string, cb: (imagePath: string, imagePathFromScript: string) => void) {
+    if (!imagePath) { return; }
 
-        let platform = process.platform;
-        if (platform === 'win32') {
-            // Windows
-            const scriptPath = path.join(__dirname, '../res/pc.ps1');
+    let platform = process.platform;
+    if (platform === 'win32') {
+        // Windows
+        const scriptPath = path.join(__dirname, '../res/pc.ps1');
 
-            let command = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
-            let powershellExisted = fs.existsSync(command);
-            if (!powershellExisted) {
-                command = "powershell";
+        let command = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+        let powershellExisted = fs.existsSync(command);
+        if (!powershellExisted) {
+            command = "powershell";
+        }
+
+        const powershell = spawn(command, [
+            '-noprofile',
+            '-noninteractive',
+            '-nologo',
+            '-sta',
+            '-executionpolicy', 'unrestricted',
+            '-windowstyle', 'hidden',
+            '-file', scriptPath,
+            imagePath
+        ]);
+        powershell.on('error', function (e: Error) {
+            if (e.message === "ENOENT") {
+                vscode.window.showErrorMessage(`The powershell command is not in you PATH environment variables.Please add it and retry.`);
+            } else {
+                vscode.window.showErrorMessage(e.message + e.stack);
             }
-
-            const powershell = spawn(command, [
-                '-noprofile',
-                '-noninteractive',
-                '-nologo',
-                '-sta',
-                '-executionpolicy', 'unrestricted',
-                '-windowstyle', 'hidden',
-                '-file', scriptPath,
-                imagePath
-            ]);
-            powershell.on('error', function (e :Error) {
-                if (e.message === "ENOENT") {
-                    vscode.window.showErrorMessage(`The powershell command is not in you PATH environment variables.Please add it and retry.`);
-                } else {               
-                    vscode.window.showErrorMessage(e.message + e.stack);
-                }
-            });
-            powershell.on('exit', function (code, signal) {
-                // console.log('exit', code, signal);
-            });
-            powershell.stdout.on('data', function (data: Buffer) {
-                cb(imagePath, data.toString().trim());
-            });
-        }
-        else if (platform === 'darwin') {
-            // Mac
-            let scriptPath = path.join(__dirname, '../res/mac.applescript');
-
-            let ascript = spawn('osascript', [scriptPath, imagePath]);
-            ascript.on('error', function (e) {
-                vscode.window.showErrorMessage(e.message + e.stack);
-            });
-            ascript.on('exit', function (code, signal) {
-                // console.log('exit',code,signal);
-            });
-            ascript.stdout.on('data', function (data: Buffer) {
-                cb(imagePath, data.toString().trim());
-            });
-        } else {
-            // Linux 
-
-            let scriptPath = path.join(__dirname, '../res/linux.sh');
-
-            let ascript = spawn('sh', [scriptPath, imagePath]);
-            ascript.on('error', function (e) {
-                vscode.window.showErrorMessage(e.message + e.stack);
-            });
-            ascript.on('exit', function (code, signal) {
-                // console.log('exit',code,signal);
-            });
-            ascript.stdout.on('data', function (data: Buffer) {
-                let result = data.toString().trim();
-                if (result === "no xclip") {
-                    vscode.window.showErrorMessage('You need to install xclip command first.');
-                    return;
-                }
-                cb(imagePath, result);
-            });
-        }
+        });
+        powershell.on('exit', function (code, signal) {
+            // console.log('exit', code, signal);
+        });
+        powershell.stdout.on('data', function (data: Buffer) {
+            cb(imagePath, data.toString().trim());
+        });
     }
+    else if (platform === 'darwin') {
+        // Mac
+        let scriptPath = path.join(__dirname, '../res/mac.applescript');
+
+        let ascript = spawn('osascript', [scriptPath, imagePath]);
+        ascript.on('error', function (e) {
+            vscode.window.showErrorMessage(e.message + e.stack);
+        });
+        ascript.on('exit', function (code, signal) {
+            // console.log('exit',code,signal);
+        });
+        ascript.stdout.on('data', function (data: Buffer) {
+            cb(imagePath, data.toString().trim());
+        });
+    } else {
+        // Linux 
+
+        let scriptPath = path.join(__dirname, '../res/linux.sh');
+
+        let ascript = spawn('sh', [scriptPath, imagePath]);
+        ascript.on('error', function (e) {
+            vscode.window.showErrorMessage(e.message + e.stack);
+        });
+        ascript.on('exit', function (code, signal) {
+            // console.log('exit',code,signal);
+        });
+        ascript.stdout.on('data', function (data: Buffer) {
+            let result = data.toString().trim();
+            if (result === "no xclip") {
+                vscode.window.showErrorMessage('You need to install xclip command first.');
+                return;
+            }
+            cb(imagePath, result);
+        });
+    }
+}
 
 
-function pushImage(fsPath:string,edit : vscode.TextEditor)
-{
+function pushImage(fsPath: string, edit: vscode.TextEditor) {
     if (fsPath) {
         var imagetobase64 = new ImageToBase64();
-        imagetobase64.convertFile(fsPath).then(function (fileinfo ) {
+        imagetobase64.convertFile(fsPath).then(function (fileinfo) {
             if (fileinfo) {
                 getBlogConfig(function initConfig(blogConfig: { config: any; metaweblog: Metaweblog; }) {
-                    newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fsPath,fileinfo);
+                    newMediaObject(blogConfig.config, blogConfig.metaweblog, edit, fsPath, fileinfo);
                 });
             }
         }, function reject(params) {
@@ -227,32 +226,29 @@ function getBlogConfig(callBakc: (blogConfig: any) => void) {
     }
 
     let blogName = vscode.workspace.getConfiguration('writeCnblog').get<string>('blogName');
-    if(!blogName)
-    {        
+    if (!blogName) {
         vscode.window.showErrorMessage("在配置中配置:writeCnblog.blogName");
         return;
     }
     let userName = vscode.workspace.getConfiguration('writeCnblog').get<string>('userName');
-    if(!userName)
-    {        
+    if (!userName) {
         vscode.window.showErrorMessage("在配置中配置:writeCnblog.userName");
         return;
     }
     let passWord = vscode.workspace.getConfiguration('writeCnblog').get<string>('passWord');
-    if(!passWord)
-    {        
+    if (!passWord) {
         vscode.window.showErrorMessage("在配置中配置:writeCnblog.passWord");
         return;
     }
-    const apiUrl = "http://rpc.cnblogs.com/metaweblog/"+blogName;
+    const apiUrl = "http://rpc.cnblogs.com/metaweblog/" + blogName;
     let metaweblog = new Metaweblog(apiUrl);
-    metaweblog.getUsersBlogs("cnblogWriteVsCode", userName, passWord, function getUsersBlogsCallBakc(backData :any) {
+    metaweblog.getUsersBlogs("cnblogWriteVsCode", userName, passWord, function getUsersBlogsCallBakc(backData: any) {
 
         if (backData.faultCode) {
             vscode.window.showErrorMessage(backData.faultString);
             return;
         }
-        let blogConfig  :{[key: string]: any}={};
+        let blogConfig: { [key: string]: any } = {};
         blogConfig["config"] = {
             apiUrl: apiUrl,
             blogid: backData[0].blogid,
@@ -267,19 +263,19 @@ function getBlogConfig(callBakc: (blogConfig: any) => void) {
 }
 
 function getRecentPosts(config: any, metaweblog: Metaweblog) {
-    metaweblog.getRecentPosts(config.blogid, config.name, config.password, 10, callBack);
+    metaweblog.getRecentPosts(config.blogid, config.name, config.password, 10, callBacks);
 }
 
-function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEditor,filePath:string, file:{}) {
+function newMediaObject(config: any, metaweblog: Metaweblog, edit: vscode.TextEditor, filePath: string, file: {}) {
 
     metaweblog.newMediaObject(config.blogid, config.name, config.password, file, function name(backData: { faultCode: any; faultString: string; url: any; }) {
         if (backData.faultCode) {
             vscode.window.showErrorMessage(backData.faultString);
             return;
         }
-        const fileName =  path.basename(filePath);
+        const fileName = path.basename(filePath);
         var url = `![${fileName}](${backData.url})`;
-        edit.edit(function editDocument(editParams) {
+        edit.edit(function editDocument(editParams: { insert: (arg0: any, arg1: string) => void; }) {
             editParams.insert(edit.selection.active, url);
         });
     });
@@ -292,10 +288,10 @@ function newPost(config: any, metaweblog: Metaweblog, publish: boolean) {
         updateCheck(title).then(() => {
             let post = {
                 title: title,
-                description: textEditor?textEditor.document.getText():"",
+                description: textEditor ? textEditor.document.getText() : "",
                 categories: ["[Markdown]"]
             };
-            metaweblog.newPos(config.blogid, config.name, config.password, post, publish, callBack);
+            metaweblog.newPos(config.blogid, config.name, config.password, post, publish, callBacks);
         });
 
     } else {
@@ -319,15 +315,14 @@ function editPost(config: any, metaweblog: Metaweblog, publish: boolean) {
             description: textEditor.document.getText(),
             categories: ["[Markdown]"]
         };
-        metaweblog.editPos(postid, config.name, config.password, post, publish, callBack);
+        metaweblog.editPos(postid, config.name, config.password, post, publish, callBacks);
     } else {
         vscode.window.showErrorMessage("没有打开要发布的文章！");
     }
 }
 
-function callBack(method:string, backData: any) {
-
-    if (backData.faultCode) {
+function callBacks(backData: any, method: string) {
+    if (backData.faultCode !== undefined) {
         vscode.window.showErrorMessage(backData.faultString);
         return;
     }
@@ -342,25 +337,28 @@ function callBack(method:string, backData: any) {
             }
             var pick = vscode.window.showQuickPick(blogTitle);
 
-            pick.then(function name(params: CnblogPickItem|undefined) {
+            pick.then(function name(params: CnblogPickItem | undefined) {
                 if (!params) { return; }
-
+                if (_blogConfig) {
+                    let blogConfig = _blogConfig;
+                    blogConfig.metaweblog.getPost(params.detail, blogConfig.config.name, blogConfig.config.password, callBacks);
+                }
             });
             break;
         case "metaWeblog.newPost":
             vscode.window.showInformationMessage("添加文章成功，文章编号：" + backData);
-            if(vscode.window.activeTextEditor){
-            let oldPath = vscode.window.activeTextEditor.document.fileName;
-            let basename = path.basename(oldPath);
-            let newPath = path.join(oldPath, "..", `[${backData}]${basename}`);
-            fs.rename(oldPath, newPath,() => {
-                File.openFileInEditor(newPath).catch((err) => {
-                    if (err) {
-                        vscode.window.showErrorMessage(err);
-                    }
+            if (vscode.window.activeTextEditor) {
+                let oldPath = vscode.window.activeTextEditor.document.fileName;
+                let basename = path.basename(oldPath);
+                let newPath = path.join(oldPath, "..", `[${backData}]${basename}`);
+                fs.rename(oldPath, newPath, () => {
+                    File.openFileInEditor(newPath).catch((err) => {
+                        if (err) {
+                            vscode.window.showErrorMessage(err);
+                        }
+                    });
                 });
-             });
-        }
+            }
             break;
         case "metaWeblog.editPost":
             vscode.window.showInformationMessage("更新文章成功：" + backData);
@@ -371,9 +369,9 @@ function callBack(method:string, backData: any) {
                 .then(File.createFile)
                 .then(File.openFileInEditor)
                 .then((textEditor) => {
-                    textEditor.edit(function editDocument(editParams) {
-                        if(vscode.window.activeTextEditor){
-                        editParams.insert(vscode.window.activeTextEditor.selection.active, backData.description);
+                    textEditor.edit(function editDocument(editParams: { insert: (arg0: any, arg1: any) => void; }) {
+                        if (vscode.window.activeTextEditor) {
+                            editParams.insert(vscode.window.activeTextEditor.selection.active, backData.description);
                         }
                     });
                 })

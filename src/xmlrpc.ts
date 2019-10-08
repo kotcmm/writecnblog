@@ -32,7 +32,9 @@ export class Xmlrpc {
             xml2js.parseString(body, function (err:any, result:any) {
                 var backData = that._parse(result);
                 if(callback){
-                    callback(backData);
+                    var method = params[0];
+                    callback(backData, method);
+                    // callback(backData);
                 }
             });
         });
@@ -158,7 +160,8 @@ export class Xmlrpc {
                 } else if (name === 'array') {
                     return this.valueParse(result.array);
                 } else if (name === 'boolean') {
-                    return result[name] === '1';
+                    // return result[name] === '1';
+                    return result[name][0] === '1';
                 } else if (name === 'data') {
                     return this.valueParse(result.data);
                 } else if (name === 'value') {

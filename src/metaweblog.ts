@@ -18,7 +18,7 @@ export class Metaweblog{
     getUsersBlogs(appKey:string, username:string, password:string,callBack: (backData: any) => void){
         this._xmlrpc.send("blogger.getUsersBlogs",appKey,username,password,callBack);
     }
-    getRecentPosts(blogid:string, username:string, password:string,	numberOfPosts:Number,callBack: (method: string, backData: any) => void){
+    getRecentPosts(blogid:string, username:string, password:string,	numberOfPosts:Number,callBack: (backData: any, method: string) => void){
         this._xmlrpc.send("metaWeblog.getRecentPosts",blogid,username,password,numberOfPosts,callBack);
     }
     
@@ -26,11 +26,11 @@ export class Metaweblog{
         this._xmlrpc.send("metaWeblog.newMediaObject",blogid,username,password,file,callBack);
     }
     
-    newPos(blogid:string, username:string, password:string, post:Object, publish:boolean,callBack: (method: string, backData: any) => void){
+    newPos(blogid:string, username:string, password:string, post:Object, publish:boolean,callBack: (backData: any, method: string) => void){
         this._xmlrpc.send("metaWeblog.newPost",blogid,username,password,post,publish,callBack);
     }
     
-    editPos(postid:string, username:string, password:string, post:Object, publish:boolean,callBack: (method: string, backData: any) => void){
+    editPos(postid:string, username:string, password:string, post:Object, publish:boolean,callBack: (backData: any, method: string) => void){
         this._xmlrpc.send("metaWeblog.editPost",postid,username,password,post,publish,callBack);
     }
 }
