@@ -9,12 +9,12 @@
     },
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/1024th/writeCnblog/issues"
+        "url": "https://github.com/kotcmm/writeCnblog/issues"
     },
-    "homepage": "https://github.com/1024th/writeCnblog/blob/master/README.md",
+    "homepage": "https://github.com/kotcmm/writeCnblog/blob/master/README.md",
     "repository": {
         "type": "git",
-        "url": "https://github.com/1024th/writeCnblog.git"
+        "url": "https://github.com/kotcmm/writeCnblog.git"
     },
     "categories": [
         "Other"
