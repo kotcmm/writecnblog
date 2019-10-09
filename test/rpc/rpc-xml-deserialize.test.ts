@@ -76,7 +76,9 @@ suite("RpcXmlDeserialize Tests", function () {
             },
             link: "http://.html",
             permalink: "http://.html",
-            postid: "00000",
+            postid: 0,
+            source:{},
+            mt_keywords: ""
         };
 
         assert.deepEqual(post, result);

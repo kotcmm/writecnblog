@@ -90,10 +90,14 @@ export class RpcClient {
     * 获取现有文章
     * @param param 
     */
-    getPost(param: GetPostParam): Promise<PostStruct> {
-        return new Promise<PostStruct>((resolve, reject) => {
-
+    async getPost(param: GetPostParam): Promise<PostStruct> {
+        let data = this.rpcXmlSerialize.serialize({
+            methodName: 'metaWeblog.getPost',
+            params: param
         });
+
+        let result = await this.postRequest(data);
+        return this.rpcXmlDeserialize.deserializePostStruct(result);
     }
 
     /**

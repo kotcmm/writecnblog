@@ -10,7 +10,7 @@ export class RpcXmlDeserialize {
      */
     async deserializeBoolean(data: String): Promise<Boolean> {
         let result = await this.deserializeObject(data);
-        return result[0].param[0].value[0].boolean[0] === '1';
+        return result === '1';
     }
 
     /**
@@ -19,10 +19,7 @@ export class RpcXmlDeserialize {
      */
     async deserializeBlogInfoStruct(data: String): Promise<BlogInfoStruct> {
         let result = await this.deserializeObject(data);
-        let value = result[0].param[0].value[0]
-            .array[0].data[0].value;
-
-        return this.getValueData(value);
+        return result[0];
     }
 
     /**
@@ -31,15 +28,7 @@ export class RpcXmlDeserialize {
      */
     async deserializeCategoryInfoStruct(data: String): Promise<Array<CategoryInfoStruct>> {
         let result = await this.deserializeObject(data);
-        let structs = result[0].param[0].value[0]
-            .array[0].data[0].value;
-        let array: Array<CategoryInfoStruct> = new Array<CategoryInfoStruct>();
-
-        structs.forEach((element: any) => {
-            array.push(this.getValueData(element));
-        });
-
-        return array;
+        return result;
     }
 
     /**
@@ -48,36 +37,38 @@ export class RpcXmlDeserialize {
      */
     async deserializePostStruct(data: String): Promise<PostStruct> {
         let result = await this.deserializeObject(data);
-        let value = result[0].param[0].value;
-
-        return this.getValueData(value);
+        return result;
     }
 
     /**
      * 获取值
-     * @param value 
+     * @param obj 
      */
-    private getValueData(value: any): any {
-        for (let name in value) {
+    private getValueData(obj: any): any {
+        for (let name in obj) {
             switch (name) {
                 case 'array':
-                    return this.getArrayValueData(value[name]);
+                    return this.getArrayValueData(obj[name]);
                 case 'struct':
-                    return this.getStructValueData(value[name]);
+                    return this.getStructValueData(obj[name]);
+                case 'i4':
+                    return +obj[name][0];
+                case 'dateTime.iso8601':
+                    return new Date(obj[name][0]);
                 default:
-                    return value[name][0];
+                    return obj[name][0];
             }
         }
     }
 
     /**
      * 获取值为array
-     * @param value 
+     * @param arrayObj 
      */
-    private getArrayValueData(value: any): any {
+    private getArrayValueData(arrayObj: any): any {
         let array: Array<any> = new Array<any>();
-        value.forEach((element: any) => {
-            var data = this.getValueData(element.data[0].value[0]);
+        arrayObj[0].data[0].value.forEach((element: any) => {
+            let data = this.getValueData(element);
             array.push(data);
         });
         return array;
@@ -85,16 +76,17 @@ export class RpcXmlDeserialize {
 
     /**
     * 获取值为struct
-    * @param value 
+    * @param structObj 
     */
-    private getStructValueData(value: any): any {
+    private getStructValueData(structObj: any): any {
         let struct: any = {};
-        value[0].member.forEach((element: any) => {
-            let name = element.name[0];
-            let data = this.getValueData(element.value[0]);
-            struct[name] = data;
-        });
-
+        if (structObj[0].member) {
+            structObj[0].member.forEach((element: any) => {
+                let name = element.name[0];
+                let data = this.getValueData(element.value[0]);
+                struct[name] = data;
+            });
+        }
         return struct;
     }
 
@@ -106,7 +98,8 @@ export class RpcXmlDeserialize {
         let parser = new xml2js.Parser();
         let result = await parser.parseStringPromise(data);
         if (result.methodResponse.params) {
-            return result.methodResponse.params;
+            let value = result.methodResponse.params[0].param[0].value[0];
+            return this.getValueData(value);
         }
         let faultString = this.faultString(result.methodResponse.fault);
 
@@ -114,7 +107,7 @@ export class RpcXmlDeserialize {
     }
 
     private faultString(fault: any): string {
-        let value = fault[0].value;
+        let value = fault[0].value[0];
 
         return this.getValueData(value).faultString;
     }
