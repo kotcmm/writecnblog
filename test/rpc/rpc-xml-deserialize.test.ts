@@ -61,4 +61,25 @@ suite("RpcXmlDeserialize Tests", function () {
         assert.deepEqual(categoryInfos, result);
     });
 
+    test("PostStructResult", async function () {
+        let xml = '<methodResponse><params><param><value><struct><member><name>dateCreated</name><value><dateTime.iso8601>2019-10-09T12:55:00.000Z</dateTime.iso8601></value></member><member><name>description</name><value><string>博客内容</string></value></member><member><name>title</name><value><string>标题内容</string></value></member><member><name>categories</name><value><array><data><value><string>[Markdown]</string></value></data></array></value></member><member><name>enclosure</name><value><struct><member><name>length</name><value><i4>0</i4></value></member></struct></value></member><member><name>link</name><value><string>http://.html</string></value></member><member><name>permalink</name><value><string>http://.html</string></value></member><member><name>postid</name><value><i4>00000</i4></value></member><member><name>source</name><value><struct /></value></member><member><name>mt_keywords</name><value><string /></value></member></struct></value></param></params></methodResponse>';
+
+        let result = await rpcXmlDeserialize.deserializePostStruct(xml);
+
+        let post = {
+            dateCreated: new Date('2019-10-09T12:55:00.000Z'),
+            description: "博客内容",
+            title: "标题内容",
+            categories: ["[Markdown]"],
+            enclosure: {
+                length: 0
+            },
+            link: "http://.html",
+            permalink: "http://.html",
+            postid: "00000",
+        };
+
+        assert.deepEqual(post, result);
+    });
+
 });

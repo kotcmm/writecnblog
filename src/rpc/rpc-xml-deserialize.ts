@@ -1,4 +1,4 @@
-import { BlogInfoStruct, CategoryInfoStruct } from "./rpc-package";
+import { BlogInfoStruct, CategoryInfoStruct, PostStruct } from "./rpc-package";
 
 const xml2js = require('xml2js');
 
@@ -19,10 +19,10 @@ export class RpcXmlDeserialize {
      */
     async deserializeBlogInfoStruct(data: String): Promise<BlogInfoStruct> {
         let result = await this.deserializeObject(data);
-        let members = result[0].param[0].value[0]
-            .array[0].data[0].value[0].struct[0].member;
+        let value = result[0].param[0].value[0]
+            .array[0].data[0].value;
 
-        return this.buildStruct(members);
+        return this.getValueData(value);
     }
 
     /**
@@ -36,25 +36,21 @@ export class RpcXmlDeserialize {
         let array: Array<CategoryInfoStruct> = new Array<CategoryInfoStruct>();
 
         structs.forEach((element: any) => {
-            array.push(this.buildStruct(element.struct[0].member));
+            array.push(this.getValueData(element));
         });
 
         return array;
     }
 
     /**
-     * 构建一个结构体的值对象
-     * @param members 
+     * 反序列化结果为PostStruct
+     * @param data 
      */
-    private buildStruct(members: any): any {
-        let struct: any = {};
-        members.forEach((element: any) => {
-            let name = element.name[0];
-            let data = this.getValueData(element.value[0]);
-            struct[name] = data;
-        });
+    async deserializePostStruct(data: String): Promise<PostStruct> {
+        let result = await this.deserializeObject(data);
+        let value = result[0].param[0].value;
 
-        return struct;
+        return this.getValueData(value);
     }
 
     /**
@@ -63,8 +59,43 @@ export class RpcXmlDeserialize {
      */
     private getValueData(value: any): any {
         for (let name in value) {
-            return value[name][0];
+            switch (name) {
+                case 'array':
+                    return this.getArrayValueData(value[name]);
+                case 'struct':
+                    return this.getStructValueData(value[name]);
+                default:
+                    return value[name][0];
+            }
         }
+    }
+
+    /**
+     * 获取值为array
+     * @param value 
+     */
+    private getArrayValueData(value: any): any {
+        let array: Array<any> = new Array<any>();
+        value.forEach((element: any) => {
+            var data = this.getValueData(element.data[0].value[0]);
+            array.push(data);
+        });
+        return array;
+    }
+
+    /**
+    * 获取值为struct
+    * @param value 
+    */
+    private getStructValueData(value: any): any {
+        let struct: any = {};
+        value[0].member.forEach((element: any) => {
+            let name = element.name[0];
+            let data = this.getValueData(element.value[0]);
+            struct[name] = data;
+        });
+
+        return struct;
     }
 
     /**
@@ -83,8 +114,8 @@ export class RpcXmlDeserialize {
     }
 
     private faultString(fault: any): string {
-        let members = fault[0].value[0].struct[0].member;
+        let value = fault[0].value;
 
-        return this.buildStruct(members).faultString;
+        return this.getValueData(value).faultString;
     }
 }

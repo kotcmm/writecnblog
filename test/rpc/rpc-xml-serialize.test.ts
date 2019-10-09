@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { RpcXmlSerialize } from '../../src/rpc/rpc-xml-serialize';
-import { DeletePostParam, GetUsersBlogsParam, EditPostParam, GetCategoriesParam } from '../../src/rpc/rpc-package';
+import { DeletePostParam, GetUsersBlogsParam, EditPostParam, GetCategoriesParam, GetPostParam } from '../../src/rpc/rpc-package';
 
 suite("RpcXmlSerialize Tests", function () {
 
@@ -81,4 +81,22 @@ suite("RpcXmlSerialize Tests", function () {
 
         assert.equal(xml, serialize);
     });
+
+    test("GetPostParam", function () {
+        let xml = '<methodCall><methodName>metaWeblog.getPost</methodName><params><param><value><string>123</string></value></param><param><value><string>username</string></value></param><param><value><string>password</string></value></param></params></methodCall>';
+
+        let data: GetPostParam = {
+            postid: '123',
+            username: 'username',
+            password: 'password',
+        };
+
+        let serialize = rpcXmlSerialize.serialize({
+            methodName: 'metaWeblog.getPost',
+            params: data
+        });
+
+        assert.equal(xml, serialize);
+    });
+
 });

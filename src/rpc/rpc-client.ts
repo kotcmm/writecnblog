@@ -23,7 +23,7 @@ export class RpcClient {
     private rpcXmlSerialize: RpcXmlSerialize = new RpcXmlSerialize();
     private rpcXmlDeserialize: RpcXmlDeserialize = new RpcXmlDeserialize();
 
-    constructor(private rpc_url: string) { }
+    constructor(private rpc_url: String) { }
 
     /**
      * blogger.deletePost
