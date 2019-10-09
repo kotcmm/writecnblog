@@ -8,14 +8,14 @@ export class RpcXmlSerialize {
         doc.push(`<methodName>${value.methodName}</methodName>`);
         if (value.params) {
             doc.push('<params>');
-            for (var key in value.params) {
+            for (let key in value.params) {
                 if (value.params.hasOwnProperty(key)) {
-                    var element = value.params[key];
-                    if(element){
+                    let element = value.params[key];
+                    if (element !== null) {
                         doc.push('<param><value>');
                         doc.push(this.paramBuild(element));
                         doc.push('</value></param>');
-                    }  
+                    }
                 }
             }
             doc.push('</params>');
@@ -56,7 +56,7 @@ export class RpcXmlSerialize {
     private arrayBuild(param: any): String {
         let paramDoc = new Array<String>();
         paramDoc.push('<array><data>');
-        for (var i = 0, len = param.length; i < len; i++) {
+        for (let i = 0, len = param.length; i < len; i++) {
             paramDoc.push('<value>');
             paramDoc.push(this.paramBuild(param[i]));
             paramDoc.push('</value>');
@@ -72,9 +72,9 @@ export class RpcXmlSerialize {
     private objectBuild(param: any): String {
         let paramDoc = new Array<String>();
         paramDoc.push('<struct>');
-        for (var key in param) {
+        for (let key in param) {
             if (param.hasOwnProperty(key)) {
-                var element = param[key];
+                let element = param[key];
                 paramDoc.push('<member>');
                 paramDoc.push(`<name>${key}</name>`);
                 paramDoc.push('<value>');
