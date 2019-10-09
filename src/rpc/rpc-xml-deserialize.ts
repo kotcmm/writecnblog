@@ -10,7 +10,7 @@ export class RpcXmlDeserialize {
      */
     async deserializeBoolean(data: String): Promise<Boolean> {
         let result = await this.deserializeObject(data);
-        return result === '1';
+        return result !== '0';
     }
 
     /**
