@@ -37,7 +37,7 @@ export class RpcClient {
         });
 
         let result = await this.postRequest(data);
-        return this.rpcXmlDeserialize.deserializeBoolean(result);
+        return await this.rpcXmlDeserialize.deserializeBoolean(result);
     }
 
     /**
@@ -52,7 +52,7 @@ export class RpcClient {
         });
 
         let result = await this.postRequest(data);
-        return this.rpcXmlDeserialize.deserializeBlogInfoStruct(result);
+        return await this.rpcXmlDeserialize.deserializeBlogInfoStruct(result);
     }
 
     /**
@@ -67,7 +67,7 @@ export class RpcClient {
         });
 
         let result = await this.postRequest(data);
-        return this.rpcXmlDeserialize.deserializeBoolean(result);
+        return await this.rpcXmlDeserialize.deserializeBoolean(result);
     }
 
     /**
@@ -82,7 +82,7 @@ export class RpcClient {
         });
 
         let result = await this.postRequest(data);
-        return this.rpcXmlDeserialize.deserializeCategoryInfoStruct(result);
+        return await this.rpcXmlDeserialize.deserializeCategoryInfoStructArray(result);
     }
 
     /**
@@ -97,7 +97,7 @@ export class RpcClient {
         });
 
         let result = await this.postRequest(data);
-        return this.rpcXmlDeserialize.deserializePostStruct(result);
+        return await this.rpcXmlDeserialize.deserializePostStruct(result);
     }
 
     /**
@@ -105,10 +105,14 @@ export class RpcClient {
     * 获取最近帖子
     * @param param 
     */
-    getRecentPosts(param: GetRecentPostsParam): Promise<Array<PostStruct>> {
-        return new Promise<Array<PostStruct>>((resolve, reject) => {
-
+    async getRecentPosts(param: GetRecentPostsParam): Promise<Array<PostStruct>> {
+        let data = this.rpcXmlSerialize.serialize({
+            methodName: 'metaWeblog.getRecentPosts',
+            params: param
         });
+
+        let result = await this.postRequest(data);
+        return await this.rpcXmlDeserialize.deserializePostStructArray(result);
     }
 
     /**
@@ -116,10 +120,14 @@ export class RpcClient {
     * 上传文件到指定博客
     * @param param 
     */
-    newMediaObject(param: NewMediaObjectParam): Promise<UrlDataStruct> {
-        return new Promise<UrlDataStruct>((resolve, reject) => {
-
+    async newMediaObject(param: NewMediaObjectParam): Promise<UrlDataStruct> {
+        let data = this.rpcXmlSerialize.serialize({
+            methodName: 'metaWeblog.newMediaObject',
+            params: param
         });
+
+        let result = await this.postRequest(data);
+        return await this.rpcXmlDeserialize.deserializeUrlDataStruct(result);
     }
 
     /**
@@ -127,10 +135,14 @@ export class RpcClient {
     * 新建文章到指定博客
     * @param param 
     */
-    newPost(param: NewPostParam): Promise<String> {
-        return new Promise<String>((resolve, reject) => {
-
+    async newPost(param: NewPostParam): Promise<String> {
+        let data = this.rpcXmlSerialize.serialize({
+            methodName: 'metaWeblog.newPost',
+            params: param
         });
+
+        let result = await this.postRequest(data);
+        return await this.rpcXmlDeserialize.deserializeString(result);
     }
 
     /**
@@ -138,10 +150,14 @@ export class RpcClient {
     * 新建目录到指定博客
     * @param param 
     */
-    newCategory(param: NewCategoryParam): Promise<Number> {
-        return new Promise<Number>((resolve, reject) => {
-
+    async newCategory(param: NewCategoryParam): Promise<Number> {
+        let data = this.rpcXmlSerialize.serialize({
+            methodName: 'wp.newCategory',
+            params: param
         });
+
+        let result = await this.postRequest(data);
+        return await this.rpcXmlDeserialize.deserializeNumber(result);
     }
 
     /**

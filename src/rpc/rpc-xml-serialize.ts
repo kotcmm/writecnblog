@@ -92,7 +92,7 @@ export class RpcXmlSerialize {
      * @param param 
      */
     private numberBuild(param: any): String {
-        return `<int>${param}</int>`;
+        return `<i4>${param}</i4>`;
     }
 
     /**

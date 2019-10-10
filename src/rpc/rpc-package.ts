@@ -88,11 +88,12 @@ export interface NewPostParam extends UserInfoParam {
  */
 export interface NewCategoryParam extends UserInfoParam {
     blog_id: String;
-    post: PostStruct;
-    publish: Boolean;
     category: WpCategoryStruct;
 }
 
+/**
+ * 个人博客的基本信息的结果
+ */
 export interface BlogInfoStruct {
     blogid: String;
     url: String;
@@ -104,10 +105,10 @@ export interface BlogInfoStruct {
  * 博客文章的结构
  */
 export interface PostStruct {
-    dateCreated: Date;
     description: String;
     title: String;
     categories?: String[];
+    dateCreated?: Date;
     enclosure?: EnclosureStruct;
     link?: String;
     permalink?: String;
