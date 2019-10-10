@@ -95,6 +95,32 @@
                     "description": "博客园的密码"
                 }
             }
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
+        },
+        "views": {
+            "write-cnblog": [
+                {
+                    "id": "write-cnblog-post",
+                    "name": "文章列表"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "extension.writeCnblog.newPost",
+                    "when": "view == write-cnblog-post",
+                    "group": "navigation@2"
+                }
+            ]
         }
     },
     "scripts": {
