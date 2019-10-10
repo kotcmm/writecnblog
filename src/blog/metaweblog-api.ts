@@ -1,9 +1,9 @@
 import { BlogConfig, AppKey } from "./blog-config";
 import { RpcClient } from "../rpc/rpc-client";
-import { UserInfoParam, BlogInfoStruct } from "../rpc/rpc-package";
+import { UserInfoParam, BlogInfoStruct, PostStruct } from "../rpc/rpc-package";
 import { PostStructBuilder } from "./poststruct-builder";
 
-export class BlogOperate {
+export class MetaweblogApi {
 
     config: BlogConfig;
     rpcClient: RpcClient;
@@ -32,6 +32,20 @@ export class BlogOperate {
         return await this.rpcClient.getUsersBlogs({
             ...this.userInfo,
             appKey: AppKey,
+        });
+    }
+
+    /**
+     * 获取最近文章
+     * @param numberOfPosts 总共要获取多少
+     */
+    async getRecentPosts(numberOfPosts: Number): Promise<Array<PostStruct>> {
+        let blogInfo = await this.blogInfo();
+
+        return await this.rpcClient.getRecentPosts({
+            ...this.userInfo,
+            blogid: blogInfo.blogid,
+            numberOfPosts: numberOfPosts,
         });
     }
 

@@ -7,7 +7,7 @@
     "engines": {
         "vscode": "^1.31.0"
     },
-    "license": "Apache-2.0",
+    "license": "SEE LICENSE IN LICENSE.md",
     "bugs": {
         "url": "https://github.com/kotcmm/writeCnblog/issues"
     },
@@ -31,8 +31,7 @@
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "extension.writeCnblog.newPost",
                 "title": "Cnblog:发布博文"
             },
@@ -61,8 +60,7 @@
                 "title": "Cnblog:获取剪贴板图片上传"
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "command": "extension.writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
@@ -97,30 +95,24 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "write-cnblog",
-                    "title": "WriteCnblog",
-                    "icon": "resources/write-cnblog.svg"
-                }
-            ]
+            "activitybar": [{
+                "id": "write-cnblog",
+                "title": "WriteCnblog",
+                "icon": "resources/write-cnblog.svg"
+            }]
         },
         "views": {
-            "write-cnblog": [
-                {
-                    "id": "write-cnblog-post",
-                    "name": "文章列表"
-                }
-            ]
+            "write-cnblog": [{
+                "id": "write-cnblog-post",
+                "name": "文章列表"
+            }]
         },
         "menus": {
-            "view/title": [
-                {
-                    "command": "extension.writeCnblog.newPost",
-                    "when": "view == write-cnblog-post",
-                    "group": "navigation@2"
-                }
-            ]
+            "view/title": [{
+                "command": "extension.writeCnblog.newPost",
+                "when": "view == write-cnblog-post",
+                "group": "navigation@2"
+            }]
         }
     },
     "scripts": {
