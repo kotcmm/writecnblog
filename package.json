@@ -21,53 +21,80 @@
     ],
     "activationEvents": [
         "onLanguage:markdown",
-        "onCommand:extension.writeCnblog.newPost",
-        "onCommand:extension.writeCnblog.savePost",
-        "onCommand:extension.writeCnblog.editNewPost",
-        "onCommand:extension.writeCnblog.editSavePost",
-        "onCommand:extension.writeCnblog.recentPosts",
-        "onCommand:extension.writeCnblog.newMediaObject",
-        "onCommand:extension.writeCnblog.postImageFromClipboard"
+        "onView:blogPostExplorer",
+        "onCommand:writeCnblog.publishPost",
+        "onCommand:writeCnblog.savePost",
+        "onCommand:writeCnblog.recentPosts",
+        "onCommand:writeCnblog.newMediaObject",
+        "onCommand:writeCnblog.postImageFromClipboard",
+        "onCommand:writeCnblog.refreshPost",
+        "onCommand:writeCnblog.deletePost"
     ],
-    "main": "./out/extension",
+    "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
-                "command": "extension.writeCnblog.newPost",
-                "title": "Cnblog:发布博文"
+        "commands": [
+            {
+                "command": "writeCnblog.createPost",
+                "title": "新建文章",
+                "icon": {
+                    "light": "resources/light/createPost.svg",
+                    "dark": "resources/dark/createPost.svg"
+                }
             },
             {
-                "command": "extension.writeCnblog.savePost",
-                "title": "Cnblog:保存草稿"
+                "command": "writeCnblog.publishPost",
+                "title": "发布文章"
             },
             {
-                "command": "extension.writeCnblog.editNewPost",
-                "title": "Cnblog:更新并发布博文"
+                "command": "writeCnblog.savePost",
+                "title": "保存草稿",
+                "icon": {
+                    "light": "resources/light/uploadSave.svg",
+                    "dark": "resources/dark/uploadSave.svg"
+                }
             },
             {
-                "command": "extension.writeCnblog.editSavePost",
-                "title": "Cnblog:更新并保存草稿"
+                "command": "writeCnblog.recentPosts",
+                "title": "拉取最近文章",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
             },
             {
-                "command": "extension.writeCnblog.recentPosts",
-                "title": "Cnblog:获取文章"
-            },
-            {
-                "command": "extension.writeCnblog.newMediaObject",
+                "command": "writeCnblog.newMediaObject",
                 "title": "Cnblog:上传图片"
             },
             {
-                "command": "extension.writeCnblog.postImageFromClipboard",
+                "command": "writeCnblog.postImageFromClipboard",
                 "title": "Cnblog:获取剪贴板图片上传"
+            },
+            {
+                "command": "writeCnblog.refreshPost",
+                "title": "拉取文章",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "writeCnblog.deletePost",
+                "title": "删除文章",
+                "icon": {
+                    "light": "resources/light/trash.svg",
+                    "dark": "resources/dark/trash.svg"
+                }
             }
         ],
-        "keybindings": [{
-                "command": "extension.writeCnblog.newMediaObject",
+        "keybindings": [
+            {
+                "command": "writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
                 "when": "editorTextFocus && editorLangId == 'markdown'"
             },
             {
-                "command": "extension.writeCnblog.postImageFromClipboard",
+                "command": "writeCnblog.postImageFromClipboard",
                 "key": "shift+alt+i",
                 "mac": "shift+alt+i",
                 "when": "editorTextFocus && editorLangId == 'markdown'"
@@ -95,24 +122,54 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [{
-                "id": "write-cnblog",
-                "title": "WriteCnblog",
-                "icon": "resources/write-cnblog.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
         },
         "views": {
-            "write-cnblog": [{
-                "id": "write-cnblog-post",
-                "name": "文章列表"
-            }]
+            "write-cnblog": [
+                {
+                    "id": "blogPostExplorer",
+                    "name": "文章列表"
+                }
+            ]
         },
         "menus": {
-            "view/title": [{
-                "command": "extension.writeCnblog.newPost",
-                "when": "view == write-cnblog-post",
-                "group": "navigation@2"
-            }]
+            "view/title": [
+                {
+                    "command": "writeCnblog.createPost",
+                    "when": "view == blogPostExplorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "writeCnblog.recentPosts",
+                    "when": "view == blogPostExplorer",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "writeCnblog.publishPost",
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                },
+                {
+                    "command": "writeCnblog.savePost",
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem",
+                    "group": "inline"
+                },
+                {
+                    "command": "writeCnblog.refreshPost",
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                },
+                {
+                    "command": "writeCnblog.deletePost",
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                }
+            ]
         }
     },
     "scripts": {

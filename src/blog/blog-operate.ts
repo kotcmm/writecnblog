@@ -3,7 +3,7 @@ import { RpcClient } from "../rpc/rpc-client";
 import { UserInfoParam, BlogInfoStruct, PostStruct } from "../rpc/rpc-package";
 import { PostStructBuilder } from "./poststruct-builder";
 
-export class MetaweblogApi {
+export class BlogOperate {
 
     config: BlogConfig;
     rpcClient: RpcClient;

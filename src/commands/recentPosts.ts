@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { MetaweblogApi } from '../blog/metaweblog-api';
+import { BlogOperate } from '../blog/blog-operate';
 
 export function newPostActivate(context: vscode.ExtensionContext) {
     let recentPostsDisposable = vscode.commands.registerCommand('extension.writeCnblog.recentPosts', async () => {
-        let blogOperate = new MetaweblogApi();
+        let blogOperate = new BlogOperate();
         blogOperate.getRecentPosts(40);
     });
 
