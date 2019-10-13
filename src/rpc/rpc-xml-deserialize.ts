@@ -9,7 +9,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为Boolean
      * @param data 
      */
-    async deserializeBoolean(data: String): Promise<Boolean> {
+    async deserializeBoolean(data: string): Promise<Boolean> {
         let result = await this.deserializeObject<Boolean>(data);
         return result;
     }
@@ -18,8 +18,8 @@ export class RpcXmlDeserialize {
      * 反序列化结果为String
      * @param data 
      */
-    async deserializeString(data: String): Promise<String> {
-        let result = await this.deserializeObject<String>(data);
+    async deserializeString(data: string): Promise<string> {
+        let result = await this.deserializeObject<string>(data);
         return result;
     }
 
@@ -27,7 +27,7 @@ export class RpcXmlDeserialize {
     * 反序列化结果为Number
     * @param data 
     */
-    async deserializeNumber(data: String): Promise<Number> {
+    async deserializeNumber(data: string): Promise<Number> {
         let result = await this.deserializeObject<Number>(data);
         return result;
     }
@@ -36,7 +36,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为BlogInfoStruct
      * @param data 
      */
-    async deserializeBlogInfoStruct(data: String): Promise<BlogInfoStruct> {
+    async deserializeBlogInfoStruct(data: string): Promise<BlogInfoStruct> {
         let result = await this.deserializeObject<Array<BlogInfoStruct>>(data);
         return result[0];
     }
@@ -45,7 +45,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为Array<CategoryInfoStruct>
      * @param data 
      */
-    async deserializeCategoryInfoStructArray(data: String): Promise<Array<CategoryInfoStruct>> {
+    async deserializeCategoryInfoStructArray(data: string): Promise<Array<CategoryInfoStruct>> {
         let result = await this.deserializeObject<Array<CategoryInfoStruct>>(data);
         return result;
     }
@@ -54,7 +54,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为PostStruct
      * @param data 
      */
-    async deserializePostStruct(data: String): Promise<PostStruct> {
+    async deserializePostStruct(data: string): Promise<PostStruct> {
         let result = await this.deserializeObject<PostStruct>(data);
         return result;
     }
@@ -63,7 +63,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为Array<PostStruct>
      * @param data 
      */
-    async deserializePostStructArray(data: String): Promise<Array<PostStruct>> {
+    async deserializePostStructArray(data: string): Promise<Array<PostStruct>> {
         let result = await this.deserializeObject<Array<PostStruct>>(data);
         return result;
     }
@@ -72,7 +72,7 @@ export class RpcXmlDeserialize {
      * 反序列化结果为UrlDataStruct
      * @param data 
      */
-    async deserializeUrlDataStruct(data: String): Promise<UrlDataStruct> {
+    async deserializeUrlDataStruct(data: string): Promise<UrlDataStruct> {
         let result = await this.deserializeObject<UrlDataStruct>(data);
         return result;
     }
@@ -133,7 +133,7 @@ export class RpcXmlDeserialize {
      * 反序列化xml，提取参数，如果错误抛出异常
      * @param data 
      */
-    async deserializeObject<T>(data: String): Promise<T> {
+    async deserializeObject<T>(data: string): Promise<T> {
         let parser = new xml2js.Parser();
         let result = await parser.parseStringPromise(data);
         if (result.methodResponse.params) {
@@ -142,7 +142,7 @@ export class RpcXmlDeserialize {
         }
         let faultString = this.faultString(result.methodResponse.fault);
 
-        throw new Error(faultString);
+        throw new Error(`请求MetaWeblog错误:${faultString}`);
     }
 
     private faultString(fault: any): string {

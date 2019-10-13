@@ -12,11 +12,16 @@ import * as vscode from 'vscode';
 // import { error } from 'util';
 // import { spawn } from 'child_process';
 // import * as moment from 'moment';
-import { BlogPostExplorer } from './blog/blog-post-provider';
 // var mkdirp = require('mkdirp');
+
+import { newPostActivate } from './commands';
+import { BlogPostExplorer } from './blog/blog-post-provider';
+
 
 export function activate(context: vscode.ExtensionContext) {
 
+    newPostActivate(context);
+    // getRecentPostsActivate(context);
     // tslint:disable-next-line: no-unused-expression
     new BlogPostExplorer(context);
 

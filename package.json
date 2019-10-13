@@ -24,7 +24,7 @@
         "onView:blogPostExplorer",
         "onCommand:writeCnblog.publishPost",
         "onCommand:writeCnblog.savePost",
-        "onCommand:writeCnblog.recentPosts",
+        "onCommand:writeCnblog.getRecentPosts",
         "onCommand:writeCnblog.newMediaObject",
         "onCommand:writeCnblog.postImageFromClipboard",
         "onCommand:writeCnblog.refreshPost",
@@ -32,14 +32,17 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "icon": {
                     "light": "resources/light/createPost.svg",
                     "dark": "resources/dark/createPost.svg"
                 }
+            },
+            {
+                "command": "writeCnblog.openPost",
+                "title": "打开文章"
             },
             {
                 "command": "writeCnblog.publishPost",
@@ -54,7 +57,7 @@
                 }
             },
             {
-                "command": "writeCnblog.recentPosts",
+                "command": "writeCnblog.getRecentPosts",
                 "title": "拉取最近文章",
                 "icon": {
                     "light": "resources/light/refresh.svg",
@@ -86,8 +89,7 @@
                 }
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "command": "writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
@@ -104,10 +106,10 @@
             "type": "object",
             "title": "writeCnblog configuration",
             "properties": {
-                "writeCnblog.blogName": {
+                "writeCnblog.rpcUrl": {
                     "type": "string",
                     "default": "",
-                    "description": "博客园的Blog地址名"
+                    "description": "博客园的MetaWeblog接口地址"
                 },
                 "writeCnblog.userName": {
                     "type": "string",
@@ -122,37 +124,31 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "write-cnblog",
-                    "title": "WriteCnblog",
-                    "icon": "resources/write-cnblog.svg"
-                }
-            ]
+            "activitybar": [{
+                "id": "write-cnblog",
+                "title": "WriteCnblog",
+                "icon": "resources/write-cnblog.svg"
+            }]
         },
         "views": {
-            "write-cnblog": [
-                {
-                    "id": "blogPostExplorer",
-                    "name": "文章列表"
-                }
-            ]
+            "write-cnblog": [{
+                "id": "blogPostExplorer",
+                "name": "文章列表"
+            }]
         },
         "menus": {
-            "view/title": [
-                {
+            "view/title": [{
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
                 },
                 {
-                    "command": "writeCnblog.recentPosts",
+                    "command": "writeCnblog.getRecentPosts",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [
-                {
+            "view/item/context": [{
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
@@ -182,6 +178,7 @@
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.54",
+        "@types/mkdirp": "^0.5.2",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vscode": "^1.1.36"

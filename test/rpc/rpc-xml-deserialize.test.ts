@@ -14,7 +14,7 @@ suite("RpcXmlDeserialize Tests", function () {
         } catch (error) {
             message = error.message;
         }
-        assert.equal(message, 'wrong username/password');
+        assert.equal(message, '请求MetaWeblog错误:wrong username/password');
     });
 
     test("BooleanResult", async function () {

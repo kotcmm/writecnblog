@@ -23,7 +23,7 @@ export class RpcClient {
     private rpcXmlSerialize: RpcXmlSerialize = new RpcXmlSerialize();
     private rpcXmlDeserialize: RpcXmlDeserialize = new RpcXmlDeserialize();
 
-    constructor(private rpc_url: String) { }
+    constructor(private rpc_url: string) { }
 
     /**
      * blogger.deletePost
@@ -135,7 +135,7 @@ export class RpcClient {
     * 新建文章到指定博客
     * @param param 
     */
-    async newPost(param: NewPostParam): Promise<String> {
+    async newPost(param: NewPostParam): Promise<string> {
         let data = this.rpcXmlSerialize.serialize({
             methodName: 'metaWeblog.newPost',
             params: param
@@ -164,7 +164,7 @@ export class RpcClient {
      * 提交请求
      * @param xml 
      */
-    private postRequest(xml: String): Promise<any> {
+    private postRequest(xml: string): Promise<any> {
 
         let options = {
             url: this.rpc_url,

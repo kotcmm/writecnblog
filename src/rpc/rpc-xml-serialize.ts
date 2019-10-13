@@ -2,8 +2,8 @@ import { MethodCall } from "./rpc-package";
 
 export class RpcXmlSerialize {
 
-    serialize(value: MethodCall): String {
-        let doc = new Array<String>();
+    serialize(value: MethodCall): string {
+        let doc = new Array<string>();
         doc.push('<methodCall>');
         doc.push(`<methodName>${value.methodName}</methodName>`);
         if (value.params) {
@@ -28,7 +28,7 @@ export class RpcXmlSerialize {
      * 构建参数序列化
      * @param param 
      */
-    private paramBuild(param: any): String {
+    private paramBuild(param: any): string {
         switch (param.constructor.name) {
             case 'Array':
                 return this.arrayBuild(param);
@@ -36,7 +36,7 @@ export class RpcXmlSerialize {
                 return this.objectBuild(param);
             case 'Number':
                 return this.numberBuild(param);
-            case 'String':
+            case 'string':
                 return this.stringBuild(param);
             case 'Buffer':
                 return this.bufferBuild(param);
@@ -53,8 +53,8 @@ export class RpcXmlSerialize {
      * 构建数组类型参数序列化
      * @param param 
      */
-    private arrayBuild(param: any): String {
-        let paramDoc = new Array<String>();
+    private arrayBuild(param: any): string {
+        let paramDoc = new Array<string>();
         paramDoc.push('<array><data>');
         for (let i = 0, len = param.length; i < len; i++) {
             paramDoc.push('<value>');
@@ -69,8 +69,8 @@ export class RpcXmlSerialize {
      * 构建对象类型参数序列化
      * @param param 
      */
-    private objectBuild(param: any): String {
-        let paramDoc = new Array<String>();
+    private objectBuild(param: any): string {
+        let paramDoc = new Array<string>();
         paramDoc.push('<struct>');
         for (let key in param) {
             if (param.hasOwnProperty(key)) {
@@ -91,7 +91,7 @@ export class RpcXmlSerialize {
      * 构建Number类型参数序列化
      * @param param 
      */
-    private numberBuild(param: any): String {
+    private numberBuild(param: any): string {
         return `<i4>${param}</i4>`;
     }
 
@@ -99,7 +99,7 @@ export class RpcXmlSerialize {
      * 构建String类型参数序列化
      * @param param 
      */
-    private stringBuild(param: any): String {
+    private stringBuild(param: any): string {
         return `<string>${this.escape(param)}</string>`;
     }
 
@@ -116,7 +116,7 @@ export class RpcXmlSerialize {
      * 构建Buffer类型参数序列化
      * @param param 
      */
-    private bufferBuild(param: any): String {
+    private bufferBuild(param: any): string {
         return `<base64>${param.toString('base64')}</base64>`;
     }
 
@@ -124,7 +124,7 @@ export class RpcXmlSerialize {
      * 构建Date类型参数序列化
      * @param param 
      */
-    private dateBuild(param: any): String {
+    private dateBuild(param: any): string {
         return `<dateTime.iso8601>${param.toISOString()}</dateTime.iso8601>`;
     }
 
@@ -132,7 +132,7 @@ export class RpcXmlSerialize {
     * 构建boolean类型参数序列化
     * @param param 
     */
-    private booleanBuild(param: any): String {
+    private booleanBuild(param: any): string {
         return `<boolean>${param ? '1' : '0'}</boolean>`;
     }
 }

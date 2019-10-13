@@ -30,8 +30,8 @@ export class BlogOperate {
      */
     async blogInfo(): Promise<BlogInfoStruct> {
         return await this.rpcClient.getUsersBlogs({
-            ...this.userInfo,
             appKey: AppKey,
+            ...this.userInfo,
         });
     }
 
@@ -43,8 +43,8 @@ export class BlogOperate {
         let blogInfo = await this.blogInfo();
 
         return await this.rpcClient.getRecentPosts({
-            ...this.userInfo,
             blogid: blogInfo.blogid,
+            ...this.userInfo,
             numberOfPosts: numberOfPosts,
         });
     }
@@ -58,8 +58,8 @@ export class BlogOperate {
         let blogInfo = await this.blogInfo();
 
         await this.rpcClient.newPost({
-            ...this.userInfo,
             blogid: blogInfo.blogid,
+            ...this.userInfo,
             post: this.postStructBuilder.build(),
             publish: publish,
         });
