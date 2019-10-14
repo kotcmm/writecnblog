@@ -5,10 +5,7 @@ import * as mkdirp from 'mkdirp';
 
 import { PostStruct } from "../rpc/rpc-package";
 import { PostImageReplace } from './post-image-replace';
-
-const blogDirName = ".cnblog";
-const blogWorkspaceFolderKey = "blogWorkspaceFolder";
-const fileExt = ".md";
+import { blogWorkspaceFolderKey, blogDirName, fileExt, blogIndexName } from '../constants';
 
 export class BlogFile {
 
@@ -153,9 +150,22 @@ export class BlogFile {
      * @param uri 
      */
     private readPostIndexs(uri: vscode.Uri): Array<PostIndexInfo> {
-        let indexPath = path.join(uri.fsPath, blogDirName, "index");
-        let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
-        return JSON.parse(context);
+        let indexPath = path.join(uri.fsPath, blogDirName, blogIndexName);
+        if (fs.existsSync(indexPath)) {
+            let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
+            return JSON.parse(context);
+        }
+        return new Array<PostIndexInfo>();
+    }
+
+    /**
+     * 保存索引
+     * @param folderPath 
+     * @param postIndexs 
+     */
+    private savePostIndexs(uri: vscode.Uri, postIndexs: Array<PostIndexInfo>): void {
+        let indexPath = path.join(uri.fsPath, blogDirName, blogIndexName);
+        fs.writeFileSync(indexPath, JSON.stringify(postIndexs));
     }
 
     /**
@@ -168,17 +178,24 @@ export class BlogFile {
             let folderPath = uri.fsPath;
             let postIndexs = this.readPostIndexs(uri);
             let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
-            posts.forEach(async post => {
-                let file = `${post.title}${fileExt}`;
-                let postPath = path.join(folderPath, file);
-                let description = postImageReplace.toLocal(post.description as string);
-                fs.writeFileSync(postPath, description);
-                //TODO:如果不存在添加索引，如果存在更新索引相关信息
-                postIndexs.push({ postid: post.postid, title: post.title ,imageIndexInfo:[]});
-            });
 
-            let indexPath = path.join(folderPath, blogDirName, "index");
-            fs.writeFileSync(indexPath, JSON.stringify(postIndexs));
+            for (let index = 0; index < posts.length; index++) {
+                const post = posts[index];
+                //TODO:如果不存在添加索引，如果存在更新索引相关信息
+                let postIndex = postIndexs.find(p => p.postid === post.postid);
+                if (postIndex) {
+
+                } else {
+                    let file = `${post.title}${fileExt}`;
+                    let description = await postImageReplace.toLocal(post.description);
+
+                    let postPath = path.join(folderPath, file);
+                    fs.writeFileSync(postPath, description);
+                    postIndexs.push({ postid: post.postid, title: post.title });
+                }
+            }
+
+            this.savePostIndexs(uri, postIndexs);
         }
     }
 
@@ -212,11 +229,4 @@ export interface PostBaseInfo {
 export interface PostIndexInfo {
     postid: any;
     title: string;
-    imageIndexInfo: ImageIndexInfo[];
-}
-
-export interface ImageIndexInfo {
-    md5: string;
-    local: string;
-    remote: string;
 }

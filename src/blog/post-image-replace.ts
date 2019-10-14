@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import { imageDirName, blogDirName, imageIndexName } from '../constants';
 const request = require('request');
 
 const regexp = /!\[(.*?)\]\((.*?)\)/g;
 const urlRegexp = /(?<=\()[\S]+(?=\))/g;
-const imageDirName = "images";
+
 /**
  * 替换文章中的图片。
  * 远程地址替换成本地地址
@@ -13,23 +14,33 @@ const imageDirName = "images";
  */
 export class PostImageReplace {
 
-    constructor(private folderPath:string){
+    constructor(private folderPath: string) {
 
     }
 
-    public toLocal(post: string): string {
+    /**
+     * 图片远端地址转换本地地址
+     * @param post 
+     */
+    public async toLocal(post: string): Promise<string> {
         let images = post.match(regexp);
+        if (!images) { return post; }
         let newPost = post;
-        //TODO:对比本地是否存在，下载图片，替换地址
-        if (images) {
-            images.forEach(image => {
-                let urls = image.match(urlRegexp);
-                if (urls) {
-                   let localPath = this.imageDown(urls[0]);
-                   newPost = newPost.replace(image,image.replace(urls[0],localPath));
+        let imageIndexs = this.readIndex();
+        for (let index = 0; index < images.length; index++) {
+            const image = images[index];
+            let urls = image.match(urlRegexp);
+            if (urls) {
+                let imageUrl = urls[0];
+                let imageIndex = imageIndexs.find(ii => ii.remote === imageUrl);
+                let localPath = imageIndex ? imageIndex.local : await this.imageDown(imageUrl);
+                newPost = newPost.replace(image, image.replace(imageUrl, localPath));
+                if (!imageIndex) {
+                    imageIndexs.push({ local: localPath, remote: imageUrl });
                 }
-            });
+            }
         }
+        this.saveIndex(imageIndexs);
         return newPost;
     }
 
@@ -37,13 +48,72 @@ export class PostImageReplace {
     * 提交请求
     * @param url 
     */
-    private imageDown(url: string): string {
-        let extName = path.extname(url);
-        mkdirp.sync(path.join(this.folderPath, imageDirName));
-        let imagePath = path.join(imageDirName,`${Date.now().toString()}${extName}`);
-        request.get(url)
-            .pipe(fs.createWriteStream(path.join(this.folderPath,imagePath)));
-
-        return imagePath;
+    private imageDown(url: string): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            let extName = path.extname(url);
+            mkdirp.sync(path.join(this.folderPath, imageDirName));
+            let imagePath = path.join(imageDirName, `${Date.now().toString()}${extName}`);
+            //TODO;下载改成同步
+            request.get(url)
+                .pipe(fs.createWriteStream(path.join(this.folderPath, imagePath)))
+                .on('finish', function () {
+                    resolve(imagePath);
+                }).on('error', function (error: any) {
+                    reject(error);
+                });
+        });
     }
+
+    /**
+     * 读取图片索引
+     */
+    private readIndex(): ImageIndexInfo[] {
+        let indexPath = path.join(this.folderPath, blogDirName, imageIndexName);
+        if (fs.existsSync(indexPath)) {
+            let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
+            let imageFiles = this.readImageFiles();
+            let imageIndexs = JSON.parse(context) as ImageIndexInfo[];
+
+            return imageIndexs.filter(ii => imageFiles.includes(ii.local));
+        }
+        return new Array<ImageIndexInfo>();
+    }
+
+    /**
+     * 保存文件索引
+     * @param imageIndexs 
+     */
+    private saveIndex(imageIndexs: Array<ImageIndexInfo>): void {
+        let indexPath = path.join(this.folderPath, blogDirName, imageIndexName);
+        fs.writeFileSync(indexPath, JSON.stringify(imageIndexs));
+    }
+
+    /**
+     * 获取本地图片路径
+     * @param uri 
+     */
+    private readImageFiles(): Array<string> {
+        let imageDir = path.join(this.folderPath, imageDirName);
+
+        if (!fs.existsSync(imageDir)) {
+            return new Array<string>();
+        }
+
+        let postFiles = new Array<string>();
+        const children = fs.readdirSync(imageDir);
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            const filePath = path.join(imageDir, child);
+            const stat = fs.statSync(filePath);
+            if (stat.isFile()) {
+                postFiles.push(path.join(imageDirName, child));
+            }
+        }
+        return postFiles;
+    }
+}
+
+export interface ImageIndexInfo {
+    local: string;
+    remote: string;
 }

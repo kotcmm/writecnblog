@@ -32,7 +32,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "icon": {
@@ -89,7 +90,8 @@
                 }
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "command": "writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
@@ -124,20 +126,25 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [{
-                "id": "write-cnblog",
-                "title": "WriteCnblog",
-                "icon": "resources/write-cnblog.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
         },
         "views": {
-            "write-cnblog": [{
-                "id": "blogPostExplorer",
-                "name": "文章列表"
-            }]
+            "write-cnblog": [
+                {
+                    "id": "blogPostExplorer",
+                    "name": "文章列表"
+                }
+            ]
         },
         "menus": {
-            "view/title": [{
+            "view/title": [
+                {
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
@@ -148,7 +155,8 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [{
+            "view/item/context": [
+                {
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
