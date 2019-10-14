@@ -71,7 +71,7 @@ export class PostImageReplace {
         let indexPath = path.join(this.folderPath, blogDirName, imageIndexName);
         if (fs.existsSync(indexPath)) {
             let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
-            let imageFiles = this.readImageFiles();
+            let imageFiles: Array<string> = this.readImageFiles();
             let imageIndexs = JSON.parse(context) as ImageIndexInfo[];
 
             return imageIndexs.filter(ii => imageFiles.includes(ii.local));

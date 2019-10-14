@@ -36,6 +36,7 @@
             {
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
+                "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/createPost.svg",
                     "dark": "resources/dark/createPost.svg"
@@ -43,15 +44,18 @@
             },
             {
                 "command": "writeCnblog.openPost",
-                "title": "打开文章"
+                "title": "打开文章",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.publishPost",
-                "title": "发布文章"
+                "title": "发布文章",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.savePost",
                 "title": "保存草稿",
+                "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/uploadSave.svg",
                     "dark": "resources/dark/uploadSave.svg"
@@ -60,6 +64,7 @@
             {
                 "command": "writeCnblog.getRecentPosts",
                 "title": "拉取最近文章",
+                "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -67,15 +72,18 @@
             },
             {
                 "command": "writeCnblog.newMediaObject",
-                "title": "Cnblog:上传图片"
+                "title": "Cnblog:上传图片",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.postImageFromClipboard",
-                "title": "Cnblog:获取剪贴板图片上传"
+                "title": "获取剪贴板图片上传",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.refreshPost",
                 "title": "拉取文章",
+                "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -84,6 +92,7 @@
             {
                 "command": "writeCnblog.deletePost",
                 "title": "删除文章",
+                "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/trash.svg",
                     "dark": "resources/dark/trash.svg"
@@ -187,12 +196,14 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.54",
         "@types/mkdirp": "^0.5.2",
+        "@types/rimraf": "^2.0.2",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vscode": "^1.1.36"
     },
     "dependencies": {
         "mkdirp": "^0.5.1",
+        "rimraf": "^2.6.2",
         "moment": "^2.24.0",
         "request": "^2.88.0",
         "xml2js": "^0.4.19"

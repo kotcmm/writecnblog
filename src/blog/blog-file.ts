@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import * as rimraf from 'rimraf';
 
 import { PostStruct } from "../rpc/rpc-package";
 import { PostImageReplace } from './post-image-replace';
-import { blogWorkspaceFolderKey, blogDirName, fileExt, blogIndexName } from '../constants';
+import { blogWorkspaceFolderKey, blogDirName, fileExt, blogIndexName, oldPostDirName } from '../constants';
 
 export class BlogFile {
 
@@ -115,7 +115,9 @@ export class BlogFile {
             let postFile = postFiles.find(p => p.title === postIndex.title);
             if (postFile) {
                 postBaseInfo.fsPath = postFile.fsPath;
-                //TODO:判断是否有更改
+                if (this.isPostModify(postIndex)) {
+                    postBaseInfo.state = PostState.M;
+                }
             }
             else {
                 postBaseInfo.state = PostState.D;
@@ -123,6 +125,24 @@ export class BlogFile {
 
             return postBaseInfo;
         });
+    }
+
+    /**
+     * 文章是否有修改
+     * @param postIndexInfo 
+     */
+    private isPostModify(postIndexInfo: PostIndexInfo): boolean {
+        if (postIndexInfo.oldTitle && postIndexInfo.oldTitle !== postIndexInfo.title) {
+            return true;
+        }
+        let folderPath = this.blogWorkspaceFolderUri!.fsPath;
+        let oldPostsFolder = path.join(folderPath, blogDirName, oldPostDirName);
+
+        let postPath = path.join(folderPath, `${postIndexInfo.title}${fileExt}`);
+        let oldPostPath = path.join(oldPostsFolder, `${postIndexInfo.oldTitle}${fileExt}`);
+
+        return fs.readFileSync(postPath, { encoding: 'utf8' }) !==
+            fs.readFileSync(oldPostPath, { encoding: 'utf8' });
     }
 
     /**
@@ -179,21 +199,45 @@ export class BlogFile {
             let folderPath = uri.fsPath;
             let postIndexs = this.readPostIndexs(uri);
             let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
+            let oldPostsFolder = path.join(folderPath, blogDirName, oldPostDirName);
+
+            if (!fs.existsSync(oldPostsFolder)) {
+                mkdirp.sync(oldPostsFolder);
+            }
 
             for (let index = 0; index < posts.length; index++) {
                 const post = posts[index];
+                let file = `${post.title}${fileExt}`;
+                let description = await postImageReplace.toLocal(post.description);
                 //TODO:如果不存在添加索引，如果存在更新索引相关信息
                 let postIndex = postIndexs.find(p => p.postid === post.postid);
+
                 if (postIndex) {
+                    if (!fs.existsSync(path.join(folderPath, `${postIndex.title}${fileExt}`))) {
+                        fs.writeFileSync(path.join(folderPath, file), description);
+                        postIndex.title = post.title;
+                    }
 
+                    if (postIndex.oldTitle !== post.title) {
+                        let oldPostPath = path.join(oldPostsFolder, `${postIndex.oldTitle}${fileExt}`);
+                        if (fs.existsSync(oldPostPath)) {
+                            rimraf.sync(oldPostPath);
+                        }
+                        postIndex.oldTitle = post.title;
+                    }
+
+                    // await vscode.commands.executeCommand('vscode.diff',
+                    //     vscode.Uri.file(postPath),
+                    //     vscode.Uri.file(postPath), "title", { preview: true });
+                    // vscode.window.showQuickPick(["1", "2"]);
                 } else {
-                    let file = `${post.title}${fileExt}`;
-                    let description = await postImageReplace.toLocal(post.description);
-
                     let postPath = path.join(folderPath, file);
                     fs.writeFileSync(postPath, description);
-                    postIndexs.push({ postid: post.postid, title: post.title });
+                    postIndexs.push({ postid: post.postid, title: post.title, oldTitle: post.title });
                 }
+
+                let oldPostPath = path.join(oldPostsFolder, file);
+                fs.writeFileSync(oldPostPath, description);
             }
 
             this.savePostIndexs(uri, postIndexs);
@@ -230,4 +274,5 @@ export interface PostBaseInfo {
 export interface PostIndexInfo {
     postid: any;
     title: string;
+    oldTitle?: string;
 }
