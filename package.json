@@ -21,19 +21,11 @@
     ],
     "activationEvents": [
         "onLanguage:markdown",
-        "onView:blogPostExplorer",
-        "onCommand:writeCnblog.publishPost",
-        "onCommand:writeCnblog.savePost",
-        "onCommand:writeCnblog.getRecentPosts",
-        "onCommand:writeCnblog.newMediaObject",
-        "onCommand:writeCnblog.postImageFromClipboard",
-        "onCommand:writeCnblog.refreshPost",
-        "onCommand:writeCnblog.deletePost"
+        "onView:blogPostExplorer"
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "category": "CnBlog",
@@ -45,6 +37,11 @@
             {
                 "command": "writeCnblog.openPost",
                 "title": "打开文章",
+                "category": "CnBlog"
+            },
+            {
+                "command": "writeCnblog.diffPost",
+                "title": "比较文章",
                 "category": "CnBlog"
             },
             {
@@ -99,8 +96,7 @@
                 }
             }
         ],
-        "keybindings": [
-            {
+        "keybindings": [{
                 "command": "writeCnblog.newMediaObject",
                 "key": "shift+i",
                 "mac": "shift+i",
@@ -135,25 +131,20 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "write-cnblog",
-                    "title": "WriteCnblog",
-                    "icon": "resources/write-cnblog.svg"
-                }
-            ]
+            "activitybar": [{
+                "id": "write-cnblog",
+                "title": "WriteCnblog",
+                "icon": "resources/write-cnblog.svg"
+            }]
         },
         "views": {
-            "write-cnblog": [
-                {
-                    "id": "blogPostExplorer",
-                    "name": "文章列表"
-                }
-            ]
+            "write-cnblog": [{
+                "id": "blogPostExplorer",
+                "name": "文章列表"
+            }]
         },
         "menus": {
-            "view/title": [
-                {
+            "view/title": [{
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
@@ -164,8 +155,7 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [
-                {
+            "view/item/context": [{
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
@@ -173,6 +163,10 @@
                     "command": "writeCnblog.savePost",
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem",
                     "group": "inline"
+                },
+                {
+                    "command": "writeCnblog.diffPost",
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
                 {
                     "command": "writeCnblog.refreshPost",

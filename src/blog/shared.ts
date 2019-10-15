@@ -13,8 +13,10 @@ export enum PostState {
 export interface PostBaseInfo {
     postId?: any;
     title: string;
+    remoteTitle?: string;
     state?: PostState;
     fsPath?: string;
+    remotePath?: string;
 }
 
 export interface PostIndexInfo {

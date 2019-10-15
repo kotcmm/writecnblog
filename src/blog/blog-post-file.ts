@@ -46,8 +46,7 @@ export class BlogPostFile {
     public isPostModify(): boolean {
         let postIndexInfo = this.postIndexInfo;
 
-        if (postIndexInfo.remoteTitle &&
-            postIndexInfo.remoteTitle !== postIndexInfo.title) {
+        if (postIndexInfo.remoteTitle !== postIndexInfo.title) {
             return true;
         }
 

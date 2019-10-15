@@ -59,10 +59,13 @@ export class BlogFile {
 
             let postFile = postFiles.find(p => p.title === postIndex.title);
             if (postFile) {
-                postBaseInfo.fsPath = postFile.fsPath;
-                if (this.isPostModify(postIndex)) {
+                let blogPostFile = new BlogPostFile(postIndex);
+                if (blogPostFile.isPostModify()) {
                     postBaseInfo.state = PostState.M;
                 }
+                postBaseInfo.fsPath = postFile.fsPath;
+                postBaseInfo.remoteTitle = postIndex.remoteTitle;
+                postBaseInfo.remotePath = blogPostFile.remotePostPath;
             }
             else {
                 postBaseInfo.state = PostState.D;
@@ -70,15 +73,6 @@ export class BlogFile {
 
             return postBaseInfo;
         });
-    }
-
-    /**
-     * 文章是否有修改
-     * @param postIndexInfo 
-     */
-    private isPostModify(postIndexInfo: PostIndexInfo): boolean {
-        let blogPostFile = new BlogPostFile(postIndexInfo);
-        return blogPostFile.isPostModify();
     }
 
     /**

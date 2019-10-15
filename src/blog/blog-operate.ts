@@ -65,3 +65,5 @@ export class BlogOperate {
         });
     }
 }
+
+export const blogOperate = new BlogOperate();

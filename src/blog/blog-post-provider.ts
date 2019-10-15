@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { BlogFile, blogFile } from './blog-file';
-import { BlogOperate } from './blog-operate';
+import { blogFile } from './blog-file';
+import { blogOperate } from './blog-operate';
 import { PostState, PostBaseInfo } from './shared';
 
 export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem>, vscode.FileSystemProvider {
@@ -9,13 +9,15 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem>, 
     private _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter<any>();
     readonly onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
 
-    public refresh(): any {
+    public async refresh(): Promise<any> {
+        let posts = await blogOperate.getRecentPosts(40);
+        await blogFile.pullPosts(posts);
         this._onDidChangeTreeData.fire();
     }
 
     private _onDidChangeFile: vscode.EventEmitter<vscode.FileChangeEvent[]>;
 
-    constructor(private blogFile: BlogFile, private context: vscode.ExtensionContext) {
+    constructor(private context: vscode.ExtensionContext) {
         this._onDidChangeFile = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
     }
 
@@ -59,8 +61,8 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem>, 
     }
 
     getChildren(element?: BlogPostItem | undefined): vscode.ProviderResult<BlogPostItem[]> {
-        const postBaseInfos = this.blogFile.readPosts();
-        return postBaseInfos.map<BlogPostItem>((postBaseInfo, index) => {
+        const postBaseInfos = blogFile.readPosts();
+        return postBaseInfos.map<BlogPostItem>((postBaseInfo) => {
             return {
                 label: postBaseInfo.title,
                 postBaseInfo: postBaseInfo,
@@ -91,29 +93,4 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem>, 
 
 export class BlogPostItem extends vscode.TreeItem {
     postBaseInfo: PostBaseInfo | undefined;
-}
-
-export class BlogPostExplorer {
-
-    // private blogPostExplorer: vscode.TreeView<BlogPostItem>;
-
-    constructor(context: vscode.ExtensionContext) {
-        const treeDataProvider = new BlogPostProvider(blogFile, context);
-        vscode.window.createTreeView('blogPostExplorer', { treeDataProvider });
-        vscode.commands.registerCommand('writeCnblog.getRecentPosts', async () => {
-            await this.getRecentPosts(blogFile);
-            treeDataProvider.refresh();
-        });
-        vscode.commands.registerCommand('writeCnblog.openPost', (resource) => this.openPost(resource));
-    }
-
-    private async getRecentPosts(blogFile: BlogFile): Promise<void> {
-        let blogOperate = new BlogOperate();
-        let posts = await blogOperate.getRecentPosts(40);
-        await blogFile.pullPosts(posts);
-    }
-
-    private openPost(resource: vscode.Uri): void {
-        vscode.window.showTextDocument(resource);
-    }
 }
