@@ -16,10 +16,12 @@ import * as vscode from 'vscode';
 
 import { newPostActivate } from './commands';
 import { BlogPostExplorer } from './blog/blog-post-provider';
+import { blogWorkspace } from './blog/blog-workspace';
 
 
 export function activate(context: vscode.ExtensionContext) {
 
+    blogWorkspace.initialize(context);
     newPostActivate(context);
     // getRecentPostsActivate(context);
     // tslint:disable-next-line: no-unused-expression

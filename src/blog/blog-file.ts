@@ -1,79 +1,24 @@
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import * as rimraf from 'rimraf';
 
 import { PostStruct } from "../rpc/rpc-package";
 import { PostImageReplace } from './post-image-replace';
-import { blogWorkspaceFolderKey, blogDirName, fileExt, blogIndexName, oldPostDirName } from '../constants';
+import { blogDirName, fileExt, blogIndexName } from '../constants';
+import { PostIndexInfo, PostFile, PostBaseInfo, PostState } from './shared';
+import { BlogPostFile } from './blog-post-file';
+import { blogWorkspace } from './blog-workspace';
 
 export class BlogFile {
-
-    constructor(private context: vscode.ExtensionContext) {
-
-    }
-
-    /**
-     * 存放文章的工作目录
-     */
-    private get blogWorkspaceFolderUri(): vscode.Uri | undefined {
-        let uri = this.context.globalState.get<vscode.Uri>(blogWorkspaceFolderKey);
-        return uri;
-    }
-
-    /**
-     * 判断是否为文章的工作目录
-     * @param uri 
-     */
-    private isBlogDirectory(uri: vscode.Uri): boolean {
-        const children = fs.readdirSync(uri.fsPath);
-        for (let i = 0; i < children.length; i++) {
-            const child = children[i];
-            const stat = fs.statSync(path.join(uri.fsPath, child));
-            if (stat.isDirectory() && child === blogDirName) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 创建一个博客工作目录
-     */
-    private async tryCreateBlogWorkspace(): Promise<boolean> {
-        let folderUri = this.blogWorkspaceFolderUri;
-        if (!folderUri) {
-            let uris = await vscode.window.showOpenDialog({
-                canSelectFolders: true,
-                canSelectFiles: false,
-                canSelectMany: false
-            });
-
-            if (uris) {
-                folderUri = uris[0];
-            } else {
-                return false;
-            }
-        }
-
-        if (!this.isBlogDirectory(folderUri)) {
-            mkdirp.sync(path.join(folderUri.fsPath, blogDirName));
-            this.context.globalState.update(blogWorkspaceFolderKey, folderUri);
-        }
-
-        return true;
-    }
 
     /**
      * 读取本地的文章列表
      */
     public readPosts(): Array<PostBaseInfo> {
         let postBaseInfos = new Array<PostBaseInfo>();
-        let uri = this.blogWorkspaceFolderUri;
-        if (uri) {
-            let postFiles = this.readPostFiles(uri);
-            let postIndexs = this.readPostIndexs(uri);
+        if (blogWorkspace.hasWorkspace) {
+            let folderPath = blogWorkspace.folderPath;
+            let postFiles = this.readPostFiles(folderPath);
+            let postIndexs = this.readPostIndexs(folderPath);
 
             let postBaseInfosByIndex = this.postBaseInfosByIndex(postIndexs, postFiles);
             let postBaseInfosByFile = this.postBaseInfoByFile(postFiles, postIndexs);
@@ -132,29 +77,20 @@ export class BlogFile {
      * @param postIndexInfo 
      */
     private isPostModify(postIndexInfo: PostIndexInfo): boolean {
-        if (postIndexInfo.oldTitle && postIndexInfo.oldTitle !== postIndexInfo.title) {
-            return true;
-        }
-        let folderPath = this.blogWorkspaceFolderUri!.fsPath;
-        let oldPostsFolder = path.join(folderPath, blogDirName, oldPostDirName);
-
-        let postPath = path.join(folderPath, `${postIndexInfo.title}${fileExt}`);
-        let oldPostPath = path.join(oldPostsFolder, `${postIndexInfo.oldTitle}${fileExt}`);
-
-        return fs.readFileSync(postPath, { encoding: 'utf8' }) !==
-            fs.readFileSync(oldPostPath, { encoding: 'utf8' });
+        let blogPostFile = new BlogPostFile(postIndexInfo);
+        return blogPostFile.isPostModify();
     }
 
     /**
      * 获取文章的文件列表
-     * @param uri 
+     * @param folderPath 
      */
-    private readPostFiles(uri: vscode.Uri): Array<PostFile> {
+    private readPostFiles(folderPath: string): Array<PostFile> {
         let postFiles = new Array<PostFile>();
-        const children = fs.readdirSync(uri.fsPath);
+        const children = fs.readdirSync(folderPath);
         for (let i = 0; i < children.length; i++) {
             const child = children[i];
-            const filePath = path.join(uri.fsPath, child);
+            const filePath = path.join(folderPath, child);
             const stat = fs.statSync(filePath);
             if (stat.isFile()) {
                 postFiles.push({
@@ -168,10 +104,10 @@ export class BlogFile {
 
     /**
      * 读取文章索引
-     * @param uri 
+     * @param folderPath 
      */
-    private readPostIndexs(uri: vscode.Uri): Array<PostIndexInfo> {
-        let indexPath = path.join(uri.fsPath, blogDirName, blogIndexName);
+    private readPostIndexs(folderPath: string): Array<PostIndexInfo> {
+        let indexPath = path.join(folderPath, blogDirName, blogIndexName);
         if (fs.existsSync(indexPath)) {
             let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
             return JSON.parse(context);
@@ -184,8 +120,8 @@ export class BlogFile {
      * @param folderPath 
      * @param postIndexs 
      */
-    private savePostIndexs(uri: vscode.Uri, postIndexs: Array<PostIndexInfo>): void {
-        let indexPath = path.join(uri.fsPath, blogDirName, blogIndexName);
+    private savePostIndexs(folderPath: string, postIndexs: Array<PostIndexInfo>): void {
+        let indexPath = path.join(folderPath, blogDirName, blogIndexName);
         fs.writeFileSync(indexPath, JSON.stringify(postIndexs));
     }
 
@@ -194,53 +130,26 @@ export class BlogFile {
      * @param posts 
      */
     public async pullPosts(posts: Array<PostStruct>): Promise<void> {
-        if (await this.tryCreateBlogWorkspace()) {
-            let uri = this.blogWorkspaceFolderUri!;
-            let folderPath = uri.fsPath;
-            let postIndexs = this.readPostIndexs(uri);
+        if (await blogWorkspace.tryCreateBlogWorkspace()) {
+            let folderPath = blogWorkspace.folderPath;
+            let postIndexs = this.readPostIndexs(folderPath);
             let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
-            let oldPostsFolder = path.join(folderPath, blogDirName, oldPostDirName);
-
-            if (!fs.existsSync(oldPostsFolder)) {
-                mkdirp.sync(oldPostsFolder);
-            }
 
             for (let index = 0; index < posts.length; index++) {
                 const post = posts[index];
-                let file = `${post.title}${fileExt}`;
-                let description = await postImageReplace.toLocal(post.description);
-                //TODO:如果不存在添加索引，如果存在更新索引相关信息
                 let postIndex = postIndexs.find(p => p.postid === post.postid);
-
-                if (postIndex) {
-                    if (!fs.existsSync(path.join(folderPath, `${postIndex.title}${fileExt}`))) {
-                        fs.writeFileSync(path.join(folderPath, file), description);
-                        postIndex.title = post.title;
-                    }
-
-                    if (postIndex.oldTitle !== post.title) {
-                        let oldPostPath = path.join(oldPostsFolder, `${postIndex.oldTitle}${fileExt}`);
-                        if (fs.existsSync(oldPostPath)) {
-                            rimraf.sync(oldPostPath);
-                        }
-                        postIndex.oldTitle = post.title;
-                    }
-
-                    // await vscode.commands.executeCommand('vscode.diff',
-                    //     vscode.Uri.file(postPath),
-                    //     vscode.Uri.file(postPath), "title", { preview: true });
-                    // vscode.window.showQuickPick(["1", "2"]);
-                } else {
-                    let postPath = path.join(folderPath, file);
-                    fs.writeFileSync(postPath, description);
-                    postIndexs.push({ postid: post.postid, title: post.title, oldTitle: post.title });
+                if (!postIndex) {
+                    postIndex = { postid: post.postid, title: post.title, remoteTitle: post.title };
+                    postIndexs.push(postIndex);
                 }
+                let description = await postImageReplace.toLocal(post.description);
+                let blogPostFile = new BlogPostFile(postIndex);
 
-                let oldPostPath = path.join(oldPostsFolder, file);
-                fs.writeFileSync(oldPostPath, description);
+                blogPostFile.updatePostWhenNotExists(post.title, description);
+                blogPostFile.updateRemotePost(post.title, description);
             }
 
-            this.savePostIndexs(uri, postIndexs);
+            this.savePostIndexs(folderPath, postIndexs);
         }
     }
 
@@ -253,26 +162,4 @@ export class BlogFile {
     }
 }
 
-export interface PostFile {
-    title: string;
-    fsPath: string;
-}
-
-export enum PostState {
-    U,//新建
-    M,//修改
-    D//删除
-}
-
-export interface PostBaseInfo {
-    postId?: any;
-    title: string;
-    state?: PostState;
-    fsPath?: string;
-}
-
-export interface PostIndexInfo {
-    postid: any;
-    title: string;
-    oldTitle?: string;
-}
+export const blogFile: BlogFile = new BlogFile();

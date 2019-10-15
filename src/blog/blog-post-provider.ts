@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { BlogFile, PostBaseInfo, PostState } from './blog-file';
+import { BlogFile, blogFile } from './blog-file';
 import { BlogOperate } from './blog-operate';
+import { PostState, PostBaseInfo } from './shared';
 
 export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem>, vscode.FileSystemProvider {
 
@@ -97,7 +98,6 @@ export class BlogPostExplorer {
     // private blogPostExplorer: vscode.TreeView<BlogPostItem>;
 
     constructor(context: vscode.ExtensionContext) {
-        let blogFile = new BlogFile(context);
         const treeDataProvider = new BlogPostProvider(blogFile, context);
         vscode.window.createTreeView('blogPostExplorer', { treeDataProvider });
         vscode.commands.registerCommand('writeCnblog.getRecentPosts', async () => {
@@ -114,6 +114,6 @@ export class BlogPostExplorer {
     }
 
     private openPost(resource: vscode.Uri): void {
-		vscode.window.showTextDocument(resource);
-	}
+        vscode.window.showTextDocument(resource);
+    }
 }
