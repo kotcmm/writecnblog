@@ -5,7 +5,7 @@ import * as rimraf from 'rimraf';
 import { PostIndexInfo } from "./shared";
 import { fileExt } from "../constants";
 import { blogWorkspace } from "./blog-workspace";
-
+//TODO:如果有相同标题，可能会覆盖文件问题
 export class BlogPostFile {
 
     /**

@@ -154,6 +154,25 @@ export class BlogFile {
     public pullPost(post: PostStruct): void {
 
     }
+
+    /**
+     * 查找文章
+     * @param postIndexInfo 
+     */
+    public getPost(postBaseInfo: PostBaseInfo): PostStruct | undefined {
+        if (postBaseInfo && postBaseInfo.fsPath) {
+            let description = fs.readFileSync(postBaseInfo.fsPath, { encoding: 'utf8' });
+            //TODO:要转换图片地址和上传图片
+            let post: PostStruct = {
+                postid: postBaseInfo.postId,
+                title: postBaseInfo.title,
+                description: description,
+                categories: ["[Markdown]"]
+            };
+            return post;
+        }
+        return undefined;
+    }
 }
 
 export const blogFile: BlogFile = new BlogFile();

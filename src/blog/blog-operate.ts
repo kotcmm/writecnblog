@@ -1,18 +1,15 @@
 import { BlogConfig, AppKey } from "./blog-config";
 import { RpcClient } from "../rpc/rpc-client";
 import { UserInfoParam, BlogInfoStruct, PostStruct } from "../rpc/rpc-package";
-import { PostStructBuilder } from "./poststruct-builder";
 
 export class BlogOperate {
 
-    config: BlogConfig;
-    rpcClient: RpcClient;
-    postStructBuilder: PostStructBuilder;
+    private config: BlogConfig;
+    private rpcClient: RpcClient;
 
     constructor() {
         this.config = new BlogConfig();
         this.rpcClient = new RpcClient(this.config.rpcUrl);
-        this.postStructBuilder = new PostStructBuilder();
     }
 
     /**
@@ -51,16 +48,32 @@ export class BlogOperate {
 
     /**
      * 发布新文章
+     * @param post
      * @param publish true为发布文章，false为保存草稿
      */
-    async newPos(publish: Boolean) {
+    async newPos(post: PostStruct, publish: Boolean) {
 
         let blogInfo = await this.blogInfo();
 
         await this.rpcClient.newPost({
             blogid: blogInfo.blogid,
             ...this.userInfo,
-            post: this.postStructBuilder.build(),
+            post: post,
+            publish: publish,
+        });
+    }
+
+
+    /**
+     * 更新文章
+     * @param post
+     * @param publish true为发布文章，false为保存草稿
+     */
+    async editPost(post: PostStruct, publish: Boolean) {
+        await this.rpcClient.editPost({
+            postid: post.postid,
+            ...this.userInfo,
+            post: post,
             publish: publish,
         });
     }
