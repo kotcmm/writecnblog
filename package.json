@@ -35,6 +35,15 @@
                 }
             },
             {
+                "command": "writeCnblog.getRecentPosts",
+                "title": "拉取最近文章",
+                "category": "CnBlog",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
                 "command": "writeCnblog.openPost",
                 "title": "打开文章",
                 "category": "CnBlog"
@@ -42,11 +51,6 @@
             {
                 "command": "writeCnblog.diffPost",
                 "title": "比较文章",
-                "category": "CnBlog"
-            },
-            {
-                "command": "writeCnblog.publishPost",
-                "title": "发布文章",
                 "category": "CnBlog"
             },
             {
@@ -59,26 +63,12 @@
                 }
             },
             {
-                "command": "writeCnblog.getRecentPosts",
-                "title": "拉取最近文章",
-                "category": "CnBlog",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            },
-            {
-                "command": "writeCnblog.newMediaObject",
-                "title": "Cnblog:上传图片",
+                "command": "writeCnblog.publishPost",
+                "title": "发布文章",
                 "category": "CnBlog"
             },
             {
-                "command": "writeCnblog.postImageFromClipboard",
-                "title": "获取剪贴板图片上传",
-                "category": "CnBlog"
-            },
-            {
-                "command": "writeCnblog.refreshPost",
+                "command": "writeCnblog.pullPost",
                 "title": "拉取文章",
                 "category": "CnBlog",
                 "icon": {
@@ -94,21 +84,19 @@
                     "light": "resources/light/trash.svg",
                     "dark": "resources/dark/trash.svg"
                 }
-            }
-        ],
-        "keybindings": [{
-                "command": "writeCnblog.newMediaObject",
-                "key": "shift+i",
-                "mac": "shift+i",
-                "when": "editorTextFocus && editorLangId == 'markdown'"
             },
             {
                 "command": "writeCnblog.postImageFromClipboard",
-                "key": "shift+alt+i",
-                "mac": "shift+alt+i",
-                "when": "editorTextFocus && editorLangId == 'markdown'"
+                "title": "粘贴剪贴板图片",
+                "category": "CnBlog"
             }
         ],
+        "keybindings": [{
+            "command": "writeCnblog.postImageFromClipboard",
+            "key": "shift+alt+i",
+            "mac": "shift+alt+i",
+            "when": "editorTextFocus && editorLangId == 'markdown'"
+        }],
         "configuration": {
             "type": "object",
             "title": "writeCnblog configuration",
@@ -169,7 +157,7 @@
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
                 {
-                    "command": "writeCnblog.refreshPost",
+                    "command": "writeCnblog.pullPost",
                     "when": "view == blogPostExplorer && viewItem == BlogPostItem"
                 },
                 {

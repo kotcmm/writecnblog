@@ -5,17 +5,18 @@ export interface PostFile {
 }
 
 export enum PostState {
-    U,//新建
-    M,//修改
-    D//删除
+    U = 0,//新建
+    M = 1,//修改
+    D = 2,//删除
+    R = 3//正常
 }
 
 export interface PostBaseInfo {
     postId?: any;
     title: string;
     remoteTitle?: string;
-    state?: PostState;
-    fsPath?: string;
+    state: PostState;
+    fsPath: string;
     remotePath?: string;
 }
 

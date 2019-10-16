@@ -17,13 +17,12 @@ export class BlogFile {
         let postBaseInfos = new Array<PostBaseInfo>();
         if (blogWorkspace.hasWorkspace) {
             let folderPath = blogWorkspace.folderPath;
-            let postFiles = this.readPostFiles(folderPath);
             let postIndexs = this.readPostIndexs(folderPath);
 
-            let postBaseInfosByIndex = this.postBaseInfosByIndex(postIndexs, postFiles);
-            let postBaseInfosByFile = this.postBaseInfoByFile(postFiles, postIndexs);
+            this.fillPostIndex(folderPath, postIndexs);
 
-            postBaseInfos.push(...postBaseInfosByFile);
+            let postBaseInfosByIndex = this.postBaseInfosByIndex(postIndexs);
+
             postBaseInfos.push(...postBaseInfosByIndex);
         }
 
@@ -31,18 +30,20 @@ export class BlogFile {
     }
 
     /**
-     * 读取文章文件，排除掉索引内的文章
-     * @param postFiles 
+     * 填补索引
      * @param postIndexs 
      */
-    private postBaseInfoByFile(postFiles: PostFile[], postIndexs: PostIndexInfo[]): Array<PostBaseInfo> {
-        return postFiles.filter(postFile => postIndexs.findIndex(p => p.title === postFile.title) === -1).map<PostBaseInfo>(postFile => {
-            return {
-                title: postFile.title,
-                fsPath: postFile.fsPath,
-                state: PostState.U
-            };
-        });
+    private fillPostIndex(folderPath: string, postIndexs: PostIndexInfo[]): void {
+        let postFiles = this.readPostFiles(folderPath);
+        postFiles.filter(postFile => postIndexs.findIndex(p => p.title === postFile.title) === -1)
+            .forEach(postFile => {
+                let postIndex: PostIndexInfo = {
+                    postid: 0,
+                    title: postFile.title
+                };
+                postIndexs.push(postIndex);
+            });
+        this.savePostIndexs(folderPath, postIndexs);
     }
 
     /**
@@ -50,25 +51,27 @@ export class BlogFile {
      * @param postIndexs 
      * @param postFiles 
      */
-    private postBaseInfosByIndex(postIndexs: PostIndexInfo[], postFiles: PostFile[]): Array<PostBaseInfo> {
+    private postBaseInfosByIndex(postIndexs: PostIndexInfo[]): Array<PostBaseInfo> {
         return postIndexs.map<PostBaseInfo>(postIndex => {
+            let blogPostFile = new BlogPostFile(postIndex);
+
             let postBaseInfo: PostBaseInfo = {
                 postId: postIndex.postid,
-                title: postIndex.title as string
+                title: postIndex.title,
+                state: PostState.R,
+                fsPath: blogPostFile.postPath
             };
 
-            let postFile = postFiles.find(p => p.title === postIndex.title);
-            if (postFile) {
-                let blogPostFile = new BlogPostFile(postIndex);
-                if (blogPostFile.isPostModify()) {
-                    postBaseInfo.state = PostState.M;
-                }
-                postBaseInfo.fsPath = postFile.fsPath;
+            if (!blogPostFile.exists()) {
+                postBaseInfo.state = PostState.D;
+            }
+            else if (blogPostFile.isNew()) {
+                postBaseInfo.state = PostState.U;
+            }
+            else if (blogPostFile.isPostModify()) {
+                postBaseInfo.state = PostState.M;
                 postBaseInfo.remoteTitle = postIndex.remoteTitle;
                 postBaseInfo.remotePath = blogPostFile.remotePostPath;
-            }
-            else {
-                postBaseInfo.state = PostState.D;
             }
 
             return postBaseInfo;
@@ -153,6 +156,30 @@ export class BlogFile {
      */
     public pullPost(post: PostStruct): void {
 
+    }
+
+    /**
+     * 新建一个文章
+     * @param title 
+     */
+    public createPost(title: string): void {
+        let folderPath = blogWorkspace.folderPath;
+        let postIndexs = this.readPostIndexs(folderPath);
+
+        if (postIndexs.findIndex(p => p.title === title) !== -1) {
+            throw new Error("不能相同标题");
+        }
+
+        let postIndex: PostIndexInfo = {
+            postid: 0,
+            title: title
+        };
+        let blogPostFile = new BlogPostFile(postIndex);
+        blogPostFile.create();
+
+
+        postIndexs.push(postIndex);
+        this.savePostIndexs(folderPath, postIndexs);
     }
 
     /**

@@ -41,6 +41,29 @@ export class BlogPostFile {
     }
 
     /**
+     * 创建新文章
+     * @param title 
+     */
+    public create(): void {
+        fs.writeFileSync(this.postPath, "");
+    }
+
+    /**
+     * 文章是否为新建
+     */
+    public isNew(): boolean {
+        return this.postIndexInfo.remoteTitle === undefined &&
+            this.postIndexInfo.postid === 0;
+    }
+
+    /**
+     * 文章文件是否存在
+     */
+    public exists(): boolean {
+        return fs.existsSync(this.postPath);
+    }
+
+    /**
     * 文章是否有修改
     */
     public isPostModify(): boolean {
