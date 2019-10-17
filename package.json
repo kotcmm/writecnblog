@@ -25,7 +25,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "category": "CnBlog",
@@ -35,13 +36,23 @@
                 }
             },
             {
-                "command": "writeCnblog.getRecentPosts",
-                "title": "拉取最近文章",
+                "command": "writeCnblog.refresh",
+                "title": "刷新显示",
                 "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
+            },
+            {
+                "command": "writeCnblog.getRecentPosts",
+                "title": "拉取最近文章",
+                "category": "CnBlog"
+            },
+            {
+                "command": "writeCnblog.setUser",
+                "title": "设置用户",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.openPost",
@@ -70,20 +81,17 @@
             {
                 "command": "writeCnblog.pullPost",
                 "title": "拉取文章",
-                "category": "CnBlog",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
+                "category": "CnBlog"
+            },
+            {
+                "command": "writeCnblog.renameTitle",
+                "title": "修改标题",
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.deletePost",
                 "title": "删除文章",
-                "category": "CnBlog",
-                "icon": {
-                    "light": "resources/light/trash.svg",
-                    "dark": "resources/dark/trash.svg"
-                }
+                "category": "CnBlog"
             },
             {
                 "command": "writeCnblog.postImageFromClipboard",
@@ -91,12 +99,14 @@
                 "category": "CnBlog"
             }
         ],
-        "keybindings": [{
-            "command": "writeCnblog.postImageFromClipboard",
-            "key": "shift+alt+i",
-            "mac": "shift+alt+i",
-            "when": "editorTextFocus && editorLangId == 'markdown'"
-        }],
+        "keybindings": [
+            {
+                "command": "writeCnblog.postImageFromClipboard",
+                "key": "shift+alt+i",
+                "mac": "shift+alt+i",
+                "when": "editorTextFocus && editorLangId == 'markdown'"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "writeCnblog configuration",
@@ -119,50 +129,73 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [{
-                "id": "write-cnblog",
-                "title": "WriteCnblog",
-                "icon": "resources/write-cnblog.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
         },
         "views": {
-            "write-cnblog": [{
-                "id": "blogPostExplorer",
-                "name": "文章列表"
-            }]
+            "write-cnblog": [
+                {
+                    "id": "blogPostExplorer",
+                    "name": "文章列表"
+                }
+            ]
         },
         "menus": {
-            "view/title": [{
+            "view/title": [
+                {
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
                 },
                 {
-                    "command": "writeCnblog.getRecentPosts",
+                    "command": "writeCnblog.refresh",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
+                },
+                {
+                    "command": "writeCnblog.getRecentPosts",
+                    "when": "view == blogPostExplorer"
+                },
+                {
+                    "command": "writeCnblog.setUser",
+                    "when": "view == blogPostExplorer"
                 }
             ],
-            "view/item/context": [{
+            "view/item/context": [
+                {
                     "command": "writeCnblog.publishPost",
-                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@2"
                 },
                 {
                     "command": "writeCnblog.savePost",
-                    "when": "view == blogPostExplorer && viewItem == BlogPostItem",
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "inline"
                 },
                 {
                     "command": "writeCnblog.diffPost",
-                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                    "when": "view == blogPostExplorer && viewItem == BlogPostItem-diff",
+                    "group": "1@1"
                 },
                 {
                     "command": "writeCnblog.pullPost",
-                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@3"
+                },
+                {
+                    "command": "writeCnblog.renameTitle",
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@4"
                 },
                 {
                     "command": "writeCnblog.deletePost",
-                    "when": "view == blogPostExplorer && viewItem == BlogPostItem"
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@5"
                 }
             ]
         }

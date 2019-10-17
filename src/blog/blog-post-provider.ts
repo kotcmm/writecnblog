@@ -30,13 +30,20 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
             return {
                 label: postBaseInfo.title,
                 postBaseInfo: postBaseInfo,
-                contextValue: 'BlogPostItem',
+                contextValue: this.getContextValue(postBaseInfo),
                 command: {
                     command: 'writeCnblog.openPost', title: "打开文章", arguments: [vscode.Uri.file(postBaseInfo.fsPath)]
                 },
                 iconPath: this.getIcon(postBaseInfo.state)
             };
         });
+    }
+
+    private getContextValue(postBaseInfo: PostBaseInfo): string {
+        if (postBaseInfo.state === PostState.M) {
+            return 'BlogPostItem-diff';
+        }
+        return 'BlogPostItem';
     }
 
     private getIcon(state?: PostState): string | undefined {
