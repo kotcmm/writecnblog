@@ -51,11 +51,11 @@ export class BlogOperate {
      * @param post
      * @param publish true为发布文章，false为保存草稿
      */
-    async newPos(post: PostStruct, publish: Boolean) {
+    async newPos(post: PostStruct, publish: Boolean): Promise<string> {
 
         let blogInfo = await this.blogInfo();
 
-        await this.rpcClient.newPost({
+        return await this.rpcClient.newPost({
             blogid: blogInfo.blogid,
             ...this.userInfo,
             post: post,
@@ -63,6 +63,16 @@ export class BlogOperate {
         });
     }
 
+    /**
+     * 获取文章内容
+     * @param postId 
+     */
+    async getPost(postId: string): Promise<PostStruct> {
+        return await this.rpcClient.getPost({
+            postid: postId,
+            ...this.userInfo
+        });
+    }
 
     /**
      * 更新文章
@@ -74,6 +84,20 @@ export class BlogOperate {
             postid: post.postid,
             ...this.userInfo,
             post: post,
+            publish: publish,
+        });
+    }
+
+    /**
+     * 删除文章
+     * @param post
+     * @param publish true为发布文章，false为保存草稿
+     */
+    async deletePost(postid: string, publish: Boolean) {
+        await this.rpcClient.deletePost({
+            appKey: AppKey,
+            postid: postid,
+            ...this.userInfo,
             publish: publish,
         });
     }

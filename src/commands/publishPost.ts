@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { blogOperate } from '../blog/blog-operate';
 import { BlogPostItem } from '../blog/blog-post-provider';
 import { blogFile } from '../blog/blog-file';
+import { pushPost } from './savePost';
 
 export function publishPostActivate(context: vscode.ExtensionContext) {
 
@@ -10,11 +10,7 @@ export function publishPostActivate(context: vscode.ExtensionContext) {
             if (blogPostItem.postBaseInfo) {
                 let post = blogFile.getPost(blogPostItem.postBaseInfo);
                 if (post) {
-                    if (post.postid) {
-                        await blogOperate.editPost(post, true);
-                    } else {
-                        await blogOperate.newPos(post, true);
-                    }
+                    await pushPost(post, true);
                     vscode.window.showInformationMessage("发布文章成功");
                 } else {
                     vscode.window.showErrorMessage("发布的文章不存在");

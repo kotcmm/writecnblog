@@ -48,6 +48,20 @@ export class BlogPostFile {
         fs.writeFileSync(this.postPath, "");
     }
 
+    public delete(): void {
+        rimraf.sync(this.postPath);
+    }
+
+    /**
+     * 修改新名称
+     * @param newTitle 
+     */
+    public rename(newTitle: string) {
+        let oldPath = this.postPath;
+        this.postIndexInfo.title = newTitle;
+        fs.renameSync(oldPath, this.postPath);
+    }
+
     /**
      * 文章是否为新建
      */

@@ -42,6 +42,8 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
     private getContextValue(postBaseInfo: PostBaseInfo): string {
         if (postBaseInfo.state === PostState.M) {
             return 'BlogPostItem-diff';
+        } else if (postBaseInfo.state === PostState.U) {
+            return 'BlogPostItem-create';
         }
         return 'BlogPostItem';
     }

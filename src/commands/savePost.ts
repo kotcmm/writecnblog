@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { blogOperate } from '../blog/blog-operate';
-import { BlogPostItem } from '../blog/blog-post-provider';
+import { BlogPostItem, blogPostProvider } from '../blog/blog-post-provider';
 import { blogFile } from '../blog/blog-file';
+import { PostStruct } from '../rpc/rpc-package';
 
 export function savePostActivate(context: vscode.ExtensionContext) {
 
@@ -10,11 +11,7 @@ export function savePostActivate(context: vscode.ExtensionContext) {
             if (blogPostItem.postBaseInfo) {
                 let post = blogFile.getPost(blogPostItem.postBaseInfo);
                 if (post) {
-                    if (post.postid) {
-                        await blogOperate.editPost(post, false);
-                    } else {
-                        await blogOperate.newPos(post, false);
-                    }
+                    await pushPost(post, false);
                     vscode.window.showInformationMessage("保存草稿成功");
                 } else {
                     vscode.window.showErrorMessage("要保存的文章不存在");
@@ -23,4 +20,18 @@ export function savePostActivate(context: vscode.ExtensionContext) {
         });
 
     context.subscriptions.push(savePostDisposable);
+}
+
+export async function pushPost(post: PostStruct, publish: Boolean) {
+    if (post.postid) {
+        await blogOperate.editPost(post, publish);
+    }
+    else {
+        let postId = await blogOperate.newPos(post, publish);
+        blogFile.updatePostIdByTilte(postId, post.title);
+        post.postid = postId;
+    }
+    post = await blogOperate.getPost(post.postid);
+    await blogFile.pullPost(post);
+    blogPostProvider.refresh();
 }

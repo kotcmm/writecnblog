@@ -154,8 +154,18 @@ export class BlogFile {
      * 更新一个文章到本地
      * @param post 
      */
-    public pullPost(post: PostStruct): void {
-
+    public async pullPost(post: PostStruct): Promise<void> {
+        let postId = post.postid.toString();
+        let folderPath = blogWorkspace.folderPath;
+        let postIndexs = this.readPostIndexs(folderPath);
+        let postIndex = postIndexs.find(p => p.postid === postId);
+        if (postIndex) {
+            let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
+            let description = await postImageReplace.toLocal(post.description);
+            let blogPostFile = new BlogPostFile(postIndex);
+            blogPostFile.updateRemotePost(post.title, description);
+        }
+        this.savePostIndexs(folderPath, postIndexs);
     }
 
     /**
@@ -176,7 +186,6 @@ export class BlogFile {
         };
         let blogPostFile = new BlogPostFile(postIndex);
         blogPostFile.create();
-
 
         postIndexs.push(postIndex);
         this.savePostIndexs(folderPath, postIndexs);
@@ -199,6 +208,58 @@ export class BlogFile {
             return post;
         }
         return undefined;
+    }
+
+    /**
+     * 
+     * @param postId 
+     * @param tilte 
+     */
+    public updatePostIdByTilte(postId: string, tilte: string): void {
+        let folderPath = blogWorkspace.folderPath;
+        let postIndexs = this.readPostIndexs(folderPath);
+        let postIndex = postIndexs.find(p => p.title === tilte);
+        if (postIndex) {
+            postIndex.postid = postId;
+            this.savePostIndexs(folderPath, postIndexs);
+        }
+    }
+
+    /**
+     * 重命名标题
+     * @param postBaseInfo 
+     * @param newTitle 
+     */
+    public renameTitle(postBaseInfo: PostBaseInfo, newTitle: string): void {
+        if (postBaseInfo.fsPath) {
+            let folderPath = blogWorkspace.folderPath;
+            let postIndexs = this.readPostIndexs(folderPath);
+            let postIndex = postIndexs.find(p => p.title === postBaseInfo.title);
+            if (postIndex) {
+                let blogPostFile = new BlogPostFile(postIndex);
+                blogPostFile.rename(newTitle);
+                postBaseInfo.fsPath = blogPostFile.postPath;
+                this.savePostIndexs(folderPath, postIndexs);
+            }
+        }
+    }
+
+    /**
+     * 删除文章
+     * @param postBaseInfo 
+     */
+    public deletePost(postBaseInfo: PostBaseInfo): void {
+        if (postBaseInfo.fsPath) {
+            let folderPath = blogWorkspace.folderPath;
+            let postIndexs = this.readPostIndexs(folderPath);
+            let index = postIndexs.findIndex(p => p.title === postBaseInfo.title);
+            if (index !== -1) {
+                let blogPostFile = new BlogPostFile(postIndexs[index]);
+                blogPostFile.delete();
+                postIndexs.splice(index, 1);
+                this.savePostIndexs(folderPath, postIndexs);
+            }
+        }
     }
 }
 
