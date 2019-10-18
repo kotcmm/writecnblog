@@ -124,9 +124,9 @@ export class BlogOperate {
             blog_id: blogInfo.blogid,
             ...this.userInfo,
             category: {
-                name: `[随笔分类]${categoryName}`,
+                name: categoryName,
                 parent_id: 0,
-                slug: "slug"
+                slug: "[随笔分类]"
             }
         });
     }
