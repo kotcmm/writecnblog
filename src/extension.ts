@@ -13,12 +13,16 @@ import { blogPostProvider } from './blog/blog-post-provider';
 import { refreshActivate } from './commands/refresh';
 import { renameTitleActivate } from './commands/renameTitle';
 import { deletePostActivate } from './commands/deletePost';
+import { blogCategoriesProvider } from './blog/blog-categories-provider';
+import { refreshCategoriesActivate } from './commands/refreshCategories';
+import { createCategoryActivate } from './commands/createCategory';
 
 export function activate(context: vscode.ExtensionContext) {
 
     blogPostProvider.initialize(context);
     blogWorkspace.initialize(context);
     vscode.window.createTreeView('blogPostExplorer', { treeDataProvider: blogPostProvider });
+    vscode.window.createTreeView('blogCategoriesExplorer', { treeDataProvider: blogCategoriesProvider });
     createPostActivate(context);
     refreshActivate(context);
     getRecentPostsActivate(context);
@@ -29,6 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
     pullPostActivate(context);
     renameTitleActivate(context);
     deletePostActivate(context);
+    refreshCategoriesActivate(context);
+    createCategoryActivate(context);
 }
 
 export function deactivate() {

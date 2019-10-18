@@ -1,6 +1,6 @@
 import { BlogConfig, AppKey } from "./blog-config";
 import { RpcClient } from "../rpc/rpc-client";
-import { UserInfoParam, BlogInfoStruct, PostStruct } from "../rpc/rpc-package";
+import { UserInfoParam, BlogInfoStruct, PostStruct, CategoryInfoStruct } from "../rpc/rpc-package";
 
 export class BlogOperate {
 
@@ -99,6 +99,35 @@ export class BlogOperate {
             postid: postid,
             ...this.userInfo,
             publish: publish,
+        });
+    }
+
+    /**
+     * 获取分类目录列表
+     */
+    async getCategories(): Promise<Array<CategoryInfoStruct>> {
+        let blogInfo = await this.blogInfo();
+        return await this.rpcClient.getCategories({
+            blogid: blogInfo.blogid,
+            ...this.userInfo
+        });
+    }
+
+    /**
+     * 新建分类
+     * @param categoryName 
+     */
+    async newCategory(categoryName: string) {
+        let blogInfo = await this.blogInfo();
+
+        await this.rpcClient.newCategory({
+            blog_id: blogInfo.blogid,
+            ...this.userInfo,
+            category: {
+                name: `[随笔分类]${categoryName}`,
+                parent_id: 0,
+                slug: "slug"
+            }
         });
     }
 }
