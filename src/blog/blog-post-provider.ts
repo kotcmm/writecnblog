@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { blogFile } from './blog-file';
 import { PostState, PostBaseInfo } from './shared';
+import { blogConfig } from './blog-config';
 
 export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
 
@@ -30,6 +31,16 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
     }
 
     getChildren(element?: BlogPostItem | undefined): vscode.ProviderResult<BlogPostItem[]> {
+
+        if (!blogConfig.blogId) {
+            return [{
+                label: "配置用户信息",
+                command: {
+                    command: 'writeCnblog.setConfig',
+                    title: "配置用户信息"
+                }
+            } as BlogPostItem];
+        }
 
         if (element &&
             element.postBaseInfo &&

@@ -17,6 +17,7 @@ import { refreshCategoriesActivate } from './commands/refreshCategories';
 import { createCategoryActivate } from './commands/createCategory';
 import { addCategoryActivate } from './commands/addCategory';
 import { removeCategoryActivate } from './commands/removeCategory';
+import { setConfigActivate } from './commands/setConfig';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -24,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
     blogWorkspace.initialize(context);
     vscode.window.createTreeView('blogPostExplorer', { treeDataProvider: blogPostProvider });
     vscode.window.createTreeView('blogCategoriesExplorer', { treeDataProvider: blogCategoriesProvider });
+    setConfigActivate(context);
     createPostActivate(context);
     getRecentPostsActivate(context);
     openPostActivate(context);

@@ -15,13 +15,16 @@ export function getRecentPostsActivate(context: vscode.ExtensionContext) {
                 token.onCancellationRequested(() => {
                     console.log("User canceled the long running operation");
                 });
-
-                progress.report({ increment: 0 });
-                progress.report({ increment: 10, message: "下载文章内容..." });
-                let posts = await blogOperate.getRecentPosts(100);
-                progress.report({ increment: 40, message: "下载图片和写入文章..." });
-                await blogFile.pullPosts(posts);
-                progress.report({ increment: 50, message: "下载完成" });
+                try {
+                    progress.report({ increment: 0 });
+                    progress.report({ increment: 10, message: "下载文章内容..." });
+                    let posts = await blogOperate.getRecentPosts(100);//TODO:加到配置里面
+                    progress.report({ increment: 40, message: "下载图片和写入文章..." });
+                    await blogFile.pullPosts(posts);
+                    progress.report({ increment: 50, message: "下载完成" });
+                } catch (error) {
+                    vscode.window.showErrorMessage(error.message);
+                }
 
                 var p = new Promise(resolve => {
                     blogPostProvider.refresh();

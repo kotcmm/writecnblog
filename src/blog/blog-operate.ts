@@ -1,34 +1,65 @@
-import { BlogConfig, AppKey } from "./blog-config";
+import { BlogConfig, AppKey, blogConfig } from "./blog-config";
 import { RpcClient } from "../rpc/rpc-client";
-import { UserInfoParam, BlogInfoStruct, PostStruct, CategoryInfoStruct } from "../rpc/rpc-package";
+import { UserInfoParam, PostStruct, CategoryInfoStruct, BlogInfoStruct } from "../rpc/rpc-package";
 
 export class BlogOperate {
 
-    private config: BlogConfig;
-    private rpcClient: RpcClient;
+    private _rpcClient: RpcClient | undefined;
+    private get rpcClient(): RpcClient {
+        if (this._rpcClient) {
+            return this._rpcClient;
+        }
+        let rpcUrl = this.config.rpcUrl();
+        if (rpcUrl) {
+            this._rpcClient = new RpcClient(rpcUrl);
+            return this._rpcClient;
+        }
 
-    constructor() {
-        this.config = new BlogConfig();
-        this.rpcClient = new RpcClient(this.config.rpcUrl);
+        throw new Error("请配置MetaWeblog访问地址");
+    }
+
+    private get config(): BlogConfig {
+        return blogConfig;
+    }
+
+    private get blogId() {
+        let blogId = this.config.blogId;
+        if (!blogId) {
+            throw new Error("请配博客Id");
+        }
+        return blogId;
     }
 
     /**
     * 从配置文件里面获取用户名和密码
     */
-    get userInfo(): UserInfoParam {
+    async userInfo(): Promise<UserInfoParam> {
+        let userName = this.config.userName();
+        if (!userName) {
+            throw new Error("请配置用户名");
+        }
+
+        let password = await this.config.password();
+        if (!password) {
+            throw new Error("请配置密码");
+        }
+
         return {
-            username: this.config.userName,
-            password: this.config.passWord
+            username: userName!,
+            password: password
         };
     }
 
     /**
      * 获取博客的信息
+     * @param rpcUrl 
+     * @param userInfo 
      */
-    async blogInfo(): Promise<BlogInfoStruct> {
-        return await this.rpcClient.getUsersBlogs({
+    async blogInfo(rpcUrl: string, userInfo: UserInfoParam): Promise<BlogInfoStruct> {
+        let rpcClient = new RpcClient(rpcUrl);
+        return await rpcClient.getUsersBlogs({
             appKey: AppKey,
-            ...this.userInfo,
+            ...userInfo,
         });
     }
 
@@ -37,11 +68,9 @@ export class BlogOperate {
      * @param numberOfPosts 总共要获取多少
      */
     async getRecentPosts(numberOfPosts: Number): Promise<Array<PostStruct>> {
-        let blogInfo = await this.blogInfo();
-
         return await this.rpcClient.getRecentPosts({
-            blogid: blogInfo.blogid,
-            ...this.userInfo,
+            blogid: this.blogId,
+            ...await this.userInfo(),
             numberOfPosts: numberOfPosts,
         });
     }
@@ -52,12 +81,9 @@ export class BlogOperate {
      * @param publish true为发布文章，false为保存草稿
      */
     async newPos(post: PostStruct, publish: Boolean): Promise<string> {
-
-        let blogInfo = await this.blogInfo();
-
         return await this.rpcClient.newPost({
-            blogid: blogInfo.blogid,
-            ...this.userInfo,
+            blogid: this.blogId,
+            ...await this.userInfo(),
             post: post,
             publish: publish,
         });
@@ -70,7 +96,7 @@ export class BlogOperate {
     async getPost(postId: string): Promise<PostStruct> {
         return await this.rpcClient.getPost({
             postid: postId,
-            ...this.userInfo
+            ...await this.userInfo(),
         });
     }
 
@@ -82,7 +108,7 @@ export class BlogOperate {
     async editPost(post: PostStruct, publish: Boolean) {
         await this.rpcClient.editPost({
             postid: post.postid,
-            ...this.userInfo,
+            ...await this.userInfo(),
             post: post,
             publish: publish,
         });
@@ -97,7 +123,7 @@ export class BlogOperate {
         await this.rpcClient.deletePost({
             appKey: AppKey,
             postid: postid,
-            ...this.userInfo,
+            ...await this.userInfo(),
             publish: publish,
         });
     }
@@ -106,10 +132,9 @@ export class BlogOperate {
      * 获取分类目录列表
      */
     async getCategories(): Promise<Array<CategoryInfoStruct>> {
-        let blogInfo = await this.blogInfo();
         return await this.rpcClient.getCategories({
-            blogid: blogInfo.blogid,
-            ...this.userInfo
+            blogid: this.blogId,
+            ...await this.userInfo(),
         });
     }
 
@@ -118,11 +143,9 @@ export class BlogOperate {
      * @param categoryName 
      */
     async newCategory(categoryName: string) {
-        let blogInfo = await this.blogInfo();
-
         await this.rpcClient.newCategory({
-            blog_id: blogInfo.blogid,
-            ...this.userInfo,
+            blog_id: this.blogId,
+            ...await this.userInfo(),
             category: {
                 name: categoryName,
                 parent_id: 0,
@@ -138,10 +161,9 @@ export class BlogOperate {
      * @param name 
      */
     async newMediaObject(bits: Buffer, type: string, name: string): Promise<string> {
-        let blogInfo = await this.blogInfo();
         let urlData = await this.rpcClient.newMediaObject({
-            blogid: blogInfo.blogid,
-            ...this.userInfo,
+            blogid: this.blogId,
+            ...await this.userInfo(),
             file: {
                 name: name,
                 type: type,

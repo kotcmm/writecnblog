@@ -8,9 +8,13 @@ export function removeCategoryActivate(context: vscode.ExtensionContext) {
         (blogPostItem: BlogPostItem) => {
             let id = blogPostItem.postBaseInfo!.id;
             if (id && blogPostItem.label) {
-                blogFile.removeCategory(id, blogPostItem.label);
-                vscode.window.showInformationMessage("移除成功");
-                blogPostProvider.refresh();
+                try {
+                    blogFile.removeCategory(id, blogPostItem.label);
+                    vscode.window.showInformationMessage("移除成功");
+                    blogPostProvider.refresh();
+                } catch (error) {
+                    vscode.window.showErrorMessage(error.message);
+                }
             }
         });
 

@@ -16,9 +16,13 @@ export function addCategoryActivate(context: vscode.ExtensionContext) {
                 if (selects && selects.length > 0) {
                     let id = blogPostItem.postBaseInfo!.id;
                     if (id) {
-                        blogFile.addCategories(id, selects);
-                        vscode.window.showInformationMessage("添加完成");
-                        blogPostProvider.refresh();
+                        try {
+                            blogFile.addCategories(id, selects);
+                            vscode.window.showInformationMessage("添加完成");
+                            blogPostProvider.refresh();
+                        } catch (error) {
+                            vscode.window.showErrorMessage(error.message);
+                        }
                     }
                 }
             });

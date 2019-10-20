@@ -15,21 +15,22 @@ export function pullPostActivate(context: vscode.ExtensionContext) {
                 token.onCancellationRequested(() => {
                     console.log("User canceled the long running operation");
                 });
-
-                if (blogPostItem.postBaseInfo) {
-                    progress.report({ increment: 0 });
-                    progress.report({ increment: 10, message: "下载文章内容..." });
-                    let post = await blogOperate.getPost(blogPostItem.postBaseInfo.postId);
-                    progress.report({ increment: 40, message: "下载图片和写入文章..." });
-                    await blogFile.pullPost(post);
-                    progress.report({ increment: 50, message: "下载完成" });
+                try {
+                    if (blogPostItem.postBaseInfo) {
+                        progress.report({ increment: 0 });
+                        progress.report({ increment: 10, message: "下载文章内容..." });
+                        let post = await blogOperate.getPost(blogPostItem.postBaseInfo.postId);
+                        progress.report({ increment: 40, message: "下载图片和写入文章..." });
+                        await blogFile.pullPost(post);
+                        progress.report({ increment: 50, message: "下载完成" });
+                    }
+                } catch (error) {
+                    vscode.window.showErrorMessage(error.message);
                 }
-
                 var p = new Promise(resolve => {
                     blogPostProvider.refresh();
                     resolve();
                 });
-
                 return p;
             });
 

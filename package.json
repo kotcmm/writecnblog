@@ -44,8 +44,8 @@
                 }
             },
             {
-                "command": "writeCnblog.setUser",
-                "title": "设置用户",
+                "command": "writeCnblog.setConfig",
+                "title": "配置设置",
                 "category": "CnBlog"
             },
             {
@@ -145,10 +145,10 @@
                     "default": "",
                     "description": "博客园的用户名"
                 },
-                "writeCnblog.passWord": {
+                "writeCnblog.blogId": {
                     "type": "string",
                     "default": "",
-                    "description": "博客园的密码"
+                    "description": "博客id"
                 }
             }
         },
@@ -182,7 +182,7 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "writeCnblog.setUser",
+                    "command": "writeCnblog.setConfig",
                     "when": "view == blogPostExplorer"
                 },
                 {
@@ -256,10 +256,11 @@
         "vscode": "^1.1.36"
     },
     "dependencies": {
+        "keytar": "^5.0.0-beta.3",
         "mkdirp": "^0.5.1",
-        "rimraf": "^2.6.2",
         "moment": "^2.24.0",
         "request": "^2.88.0",
+        "rimraf": "^2.6.2",
         "xml2js": "^0.4.19"
     }
 }
