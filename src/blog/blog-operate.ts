@@ -130,6 +130,27 @@ export class BlogOperate {
             }
         });
     }
+
+    /**
+     * 上传图片，并返回图片地址
+     * @param bits 
+     * @param type 
+     * @param name 
+     */
+    async newMediaObject(bits: Buffer, type: string, name: string): Promise<string> {
+        let blogInfo = await this.blogInfo();
+        let urlData = await this.rpcClient.newMediaObject({
+            blogid: blogInfo.blogid,
+            ...this.userInfo,
+            file: {
+                name: name,
+                type: type,
+                bits: bits
+            }
+        });
+
+        return urlData.url;
+    }
 }
 
 export const blogOperate = new BlogOperate();

@@ -10,7 +10,17 @@ export function renameTitleActivate(context: vscode.ExtensionContext) {
                 if (title) {
                     try {
                         if (blogPostItem.postBaseInfo && title) {
-                            blogFile.renameTitle(blogPostItem.postBaseInfo, title);
+                            let oldFilePath = blogPostItem.postBaseInfo.fsPath;
+                            let newFilePath = blogFile.renameTitle(blogPostItem.postBaseInfo, title);
+                            let textEditor = vscode.window.visibleTextEditors
+                                .find(t => t.document.fileName === oldFilePath);
+                            if (textEditor && newFilePath) {
+                                let viewColumn = textEditor.viewColumn;
+                                textEditor.hide();
+                                vscode.window.showTextDocument(
+                                    vscode.Uri.file(newFilePath),
+                                    { viewColumn: viewColumn });
+                            }
                             blogPostProvider.refresh();
                         }
                     } catch (error) {

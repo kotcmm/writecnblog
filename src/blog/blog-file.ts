@@ -2,78 +2,160 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { PostStruct } from "../rpc/rpc-package";
-import { PostImageReplace } from './post-image-replace';
-import { blogDirName, fileExt, blogIndexName } from '../constants';
-import { PostIndexInfo, PostFile, PostBaseInfo, PostState } from './shared';
+import { blogDirName, blogIndexName } from '../constants';
+import { PostIndexInfo, PostFile, PostBaseInfo } from './shared';
 import { BlogPostFile } from './blog-post-file';
 import { blogWorkspace } from './blog-workspace';
+import { postImageReplace } from './post-image-replace';
 
 export class BlogFile {
 
-    /**
-     * 读取本地的文章列表
-     */
-    public readPosts(): Array<PostBaseInfo> {
-        let postBaseInfos = new Array<PostBaseInfo>();
-        if (blogWorkspace.hasWorkspace) {
-            let folderPath = blogWorkspace.folderPath;
-            let postIndexs = this.readPostIndexs(folderPath);
+    private _postIndexs: Array<PostIndexInfo>;
 
-            this.fillPostIndex(folderPath, postIndexs);
-
-            let postBaseInfosByIndex = this.postBaseInfosByIndex(postIndexs);
-
-            postBaseInfos.push(...postBaseInfosByIndex);
-        }
-
-        return postBaseInfos;
+    constructor() {
+        this._postIndexs = new Array<PostIndexInfo>();
     }
 
     /**
-     * 填补索引
+     * 工作空间目录
+     */
+    private get folderPath(): string {
+        return blogWorkspace.folderPath;
+    }
+
+    /**
+     * 索引路径
+     */
+    private get indexPath(): string {
+        return path.join(this.folderPath, blogDirName, blogIndexName);
+    }
+
+    /**
+     * 索引Id
+     */
+    private get indexId(): number {
+        return this.postIndexs.length === 0 ?
+            1 : this.postIndexs[this.postIndexs.length - 1].id + 1;
+    }
+
+    /**
+     * 读取文章索引
+     * @param folderPath 
+     */
+    private get postIndexs(): Array<PostIndexInfo> {
+        if (this._postIndexs.length === 0) {
+            let indexPath = this.indexPath;
+            if (fs.existsSync(indexPath)) {
+                let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
+                this._postIndexs = JSON.parse(context);
+            }
+        }
+        return this._postIndexs;
+    }
+
+    /**
+     * 保存索引
+     * @param folderPath 
      * @param postIndexs 
      */
-    private fillPostIndex(folderPath: string, postIndexs: PostIndexInfo[]): void {
-        let postFiles = this.readPostFiles(folderPath);
-        postFiles.filter(postFile => postIndexs.findIndex(p => p.title === postFile.title) === -1)
+    private set postIndexs(postIndexs: Array<PostIndexInfo>) {
+        this._postIndexs = postIndexs;
+        this.savePostIndexs();
+    }
+
+    /**
+     * 持久化文章索引
+     */
+    private savePostIndexs() {
+        fs.writeFileSync(this.indexPath, JSON.stringify(this.postIndexs));
+    }
+
+    /**
+     * 索引里面是否存在标题为title
+     * @param postIndexs 
+     * @param title 
+     */
+    private hasIndexByTitle(title: string): boolean {
+        return this.postIndexs.findIndex(p => p.title === title) !== -1;
+    }
+
+    /**
+     * 更新或者添加索引
+     * @param postIndex
+     */
+    private updateOrAddPostIndex(postIndex: PostIndexInfo): PostIndexInfo {
+
+        let oldPostIndex = this.postIndexs.find(p => p.postid === postIndex.postid);
+        if (oldPostIndex && postIndex.postid) {
+            postIndex.id = oldPostIndex.id;
+            if (oldPostIndex.title === oldPostIndex.remoteTitle) {//不相等不要覆盖
+                oldPostIndex.title = postIndex.title;
+            }
+            oldPostIndex.remoteTitle = postIndex.remoteTitle;
+            oldPostIndex.categories = postIndex.categories;
+            oldPostIndex.link = postIndex.link;
+            oldPostIndex.permalink = postIndex.permalink;
+        }
+        else {
+            postIndex.id = this.indexId;
+            this.postIndexs.push(postIndex);
+        }
+
+        this.savePostIndexs();
+        return postIndex;
+    }
+
+    private updataOrAddIndex(postIndex: PostIndexInfo) {
+        let oldPostIndex = this.postIndexs.find(p => p.id === postIndex.id);
+        if (oldPostIndex) {
+            oldPostIndex.postid = postIndex.postid;
+            oldPostIndex.title = postIndex.title;
+            oldPostIndex.remoteTitle = postIndex.remoteTitle;
+            oldPostIndex.categories = postIndex.categories;
+            oldPostIndex.link = postIndex.link;
+            oldPostIndex.permalink = postIndex.permalink;
+        }
+        else {
+            this.postIndexs.push(postIndex);
+        }
+
+        this.savePostIndexs();
+    }
+
+    /**
+     * 根据文章文件填补索引
+     * @param postIndexs 
+     */
+    private fillPostIndex(): void {
+        this.readPostFiles()
+            .filter(postFile => !this.hasIndexByTitle(postFile.title))
             .forEach(postFile => {
-                let postIndex: PostIndexInfo = {
+                this.updateOrAddPostIndex({
+                    id: 0,
                     postid: 0,
-                    title: postFile.title
-                };
-                postIndexs.push(postIndex);
+                    title: postFile.title,
+                });
             });
-        this.savePostIndexs(folderPath, postIndexs);
     }
 
     /**
      * 读取文章索引的内容，并合并文件信息
-     * @param postIndexs 
-     * @param postFiles 
      */
-    private postBaseInfosByIndex(postIndexs: PostIndexInfo[]): Array<PostBaseInfo> {
-        return postIndexs.map<PostBaseInfo>(postIndex => {
+    private postBaseInfosByIndex(): Array<PostBaseInfo> {
+        return this.postIndexs.map<PostBaseInfo>(postIndex => {
             let blogPostFile = new BlogPostFile(postIndex);
-
             let postBaseInfo: PostBaseInfo = {
+                id: postIndex.id,
                 postId: postIndex.postid,
                 title: postIndex.title,
-                state: PostState.R,
-                fsPath: blogPostFile.postPath
+                remoteTitle: postIndex.remoteTitle,
+                categories: postIndex.categories,
+                link: postIndex.link,
+                permalink: postIndex.permalink,
+                state: blogPostFile.postState(),
+                fsPath: blogPostFile.postPath,
+                remotePath: blogPostFile.remotePostPath
             };
-
-            if (!blogPostFile.exists()) {
-                postBaseInfo.state = PostState.D;
-            }
-            else if (blogPostFile.isNew()) {
-                postBaseInfo.state = PostState.U;
-            }
-            else if (blogPostFile.isPostModify()) {
-                postBaseInfo.state = PostState.M;
-                postBaseInfo.remoteTitle = postIndex.remoteTitle;
-                postBaseInfo.remotePath = blogPostFile.remotePostPath;
-            }
-
             return postBaseInfo;
         });
     }
@@ -82,7 +164,8 @@ export class BlogFile {
      * 获取文章的文件列表
      * @param folderPath 
      */
-    private readPostFiles(folderPath: string): Array<PostFile> {
+    private readPostFiles(): Array<PostFile> {
+        let folderPath = this.folderPath;
         let postFiles = new Array<PostFile>();
         const children = fs.readdirSync(folderPath);
         for (let i = 0; i < children.length; i++) {
@@ -90,8 +173,11 @@ export class BlogFile {
             const filePath = path.join(folderPath, child);
             const stat = fs.statSync(filePath);
             if (stat.isFile()) {
+                let lastIndex = child.lastIndexOf('.');
+                let childSub = child.substring(0, lastIndex);
+                lastIndex = childSub.lastIndexOf('.');
                 postFiles.push({
-                    title: path.basename(child, fileExt),
+                    title: childSub.substring(0, lastIndex),
                     fsPath: filePath
                 });
             }
@@ -100,26 +186,18 @@ export class BlogFile {
     }
 
     /**
-     * 读取文章索引
-     * @param folderPath 
+     * 读取本地的文章列表
      */
-    private readPostIndexs(folderPath: string): Array<PostIndexInfo> {
-        let indexPath = path.join(folderPath, blogDirName, blogIndexName);
-        if (fs.existsSync(indexPath)) {
-            let context = fs.readFileSync(indexPath, { encoding: 'utf8' });
-            return JSON.parse(context);
-        }
-        return new Array<PostIndexInfo>();
-    }
+    public readPosts(): Array<PostBaseInfo> {
+        let postBaseInfos = new Array<PostBaseInfo>();
+        if (blogWorkspace.hasWorkspace) {
 
-    /**
-     * 保存索引
-     * @param folderPath 
-     * @param postIndexs 
-     */
-    private savePostIndexs(folderPath: string, postIndexs: Array<PostIndexInfo>): void {
-        let indexPath = path.join(folderPath, blogDirName, blogIndexName);
-        fs.writeFileSync(indexPath, JSON.stringify(postIndexs));
+            this.fillPostIndex();
+
+            postBaseInfos.push(...this.postBaseInfosByIndex());
+        }
+
+        return postBaseInfos;
     }
 
     /**
@@ -128,26 +206,35 @@ export class BlogFile {
      */
     public async pullPosts(posts: Array<PostStruct>): Promise<void> {
         if (await blogWorkspace.tryCreateBlogWorkspace()) {
-            let folderPath = blogWorkspace.folderPath;
-            let postIndexs = this.readPostIndexs(folderPath);
-            let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
-
             for (let index = 0; index < posts.length; index++) {
-                const post = posts[index];
-                let postIndex = postIndexs.find(p => p.postid === post.postid);
-                if (!postIndex) {
-                    postIndex = { postid: post.postid, title: post.title, remoteTitle: post.title };
-                    postIndexs.push(postIndex);
-                }
-                let description = await postImageReplace.toLocal(post.description);
-                let blogPostFile = new BlogPostFile(postIndex);
-
-                blogPostFile.updatePostWhenNotExists(post.title, description);
-                blogPostFile.updateRemotePost(post.title, description);
+                await this.pullPost(posts[index]);
             }
-
-            this.savePostIndexs(folderPath, postIndexs);
         }
+    }
+
+    /**
+     * 根据postid创建一个BlogPostFile
+     * @param postId 
+     */
+    private createBlogPostFileByPostId(postId: string): BlogPostFile {
+        let postIndex = this.postIndexs.find(p => p.postid === postId.toString());
+        if (!postIndex || !postId) {
+            postIndex = { id: this.indexId, postid: postId, title: "" };
+        }
+
+        return new BlogPostFile(postIndex);
+    }
+
+    /**
+     * 根据id创建一个BlogPostFile
+     * @param id 
+     */
+    private createBlogPostFileById(id: number): BlogPostFile {
+        let postIndex = this.postIndexs.find(p => p.id === id);
+        if (!postIndex) {
+            throw new Error("该文章不存在");
+        }
+        return new BlogPostFile(postIndex);
     }
 
     /**
@@ -155,17 +242,20 @@ export class BlogFile {
      * @param post 
      */
     public async pullPost(post: PostStruct): Promise<void> {
-        let postId = post.postid.toString();
-        let folderPath = blogWorkspace.folderPath;
-        let postIndexs = this.readPostIndexs(folderPath);
-        let postIndex = postIndexs.find(p => p.postid === postId);
-        if (postIndex) {
-            let postImageReplace: PostImageReplace = new PostImageReplace(folderPath);
-            let description = await postImageReplace.toLocal(post.description);
-            let blogPostFile = new BlogPostFile(postIndex);
-            blogPostFile.updateRemotePost(post.title, description);
-        }
-        this.savePostIndexs(folderPath, postIndexs);
+        let blogPostFile = this.createBlogPostFileByPostId(post.postid);
+        let description = await postImageReplace.toLocal(post.description);
+
+        blogPostFile.updatePost(post.title, description);
+        blogPostFile.updateRemotePost(post.title, description);
+        blogPostFile.updateCategories(post.categories);
+
+        let postIndex: PostIndexInfo = {
+            ...blogPostFile.getPostIndexInfo(),
+            link: post.link,
+            permalink: post.permalink
+        };
+
+        this.updataOrAddIndex(postIndex);
     }
 
     /**
@@ -173,74 +263,68 @@ export class BlogFile {
      * @param title 
      */
     public createPost(title: string): void {
-        let folderPath = blogWorkspace.folderPath;
-        let postIndexs = this.readPostIndexs(folderPath);
 
-        if (postIndexs.findIndex(p => p.title === title) !== -1) {
+        if (this.hasIndexByTitle(title)) {
             throw new Error("不能相同标题");
         }
 
-        let postIndex: PostIndexInfo = {
-            postid: 0,
-            title: title
-        };
-        let blogPostFile = new BlogPostFile(postIndex);
-        blogPostFile.create();
+        let blogPostFile = this.createBlogPostFileByPostId("");
 
-        postIndexs.push(postIndex);
-        this.savePostIndexs(folderPath, postIndexs);
+        blogPostFile.create(title);
+
+        this.updataOrAddIndex(blogPostFile.getPostIndexInfo());
+    }
+
+    /**
+   * 重命名标题
+   * @param postBaseInfo 
+   * @param newTitle 
+   */
+    public renameTitle(postBaseInfo: PostBaseInfo, newTitle: string): string | undefined {
+        if (this.hasIndexByTitle(newTitle)) {
+            throw new Error("不能相同标题");
+        }
+
+        let blogPostFile = this.createBlogPostFileById(postBaseInfo.id);
+        blogPostFile.rename(newTitle);
+        this.updataOrAddIndex(blogPostFile.getPostIndexInfo());
+
+        return blogPostFile.postPath;
     }
 
     /**
      * 查找文章
-     * @param postIndexInfo 
+     * @param id 
      */
-    public getPost(postBaseInfo: PostBaseInfo): PostStruct | undefined {
-        if (postBaseInfo && postBaseInfo.fsPath) {
-            let description = fs.readFileSync(postBaseInfo.fsPath, { encoding: 'utf8' });
-            //TODO:要转换图片地址和上传图片
-            let post: PostStruct = {
-                postid: postBaseInfo.postId,
-                title: postBaseInfo.title,
-                description: description,
-                categories: ["[Markdown]"]
-            };
-            return post;
+    public async getPost(id: number): Promise<PostStruct> {
+        let blogPostFile = this.createBlogPostFileById(id);
+        let postIndex = blogPostFile.getPostIndexInfo();
+        let description = await postImageReplace.toRemote(blogPostFile.description());
+        let categories: string[] = postIndex.categories ? postIndex.categories : [];
+
+        if (!categories.includes("[Markdown]")) {
+            categories.push("[Markdown]");
         }
-        return undefined;
+
+        let post: PostStruct = {
+            postid: postIndex.postid,
+            title: postIndex.title,
+            description: description,
+            categories: categories
+        };
+        return post;
     }
 
     /**
      * 
      * @param postId 
-     * @param tilte 
+     * @param id 
      */
-    public updatePostIdByTilte(postId: string, tilte: string): void {
-        let folderPath = blogWorkspace.folderPath;
-        let postIndexs = this.readPostIndexs(folderPath);
-        let postIndex = postIndexs.find(p => p.title === tilte);
+    public updatePostId(postId: string, id: number): void {
+        let postIndex = this.postIndexs.find(p => p.id === id);
         if (postIndex) {
             postIndex.postid = postId;
-            this.savePostIndexs(folderPath, postIndexs);
-        }
-    }
-
-    /**
-     * 重命名标题
-     * @param postBaseInfo 
-     * @param newTitle 
-     */
-    public renameTitle(postBaseInfo: PostBaseInfo, newTitle: string): void {
-        if (postBaseInfo.fsPath) {
-            let folderPath = blogWorkspace.folderPath;
-            let postIndexs = this.readPostIndexs(folderPath);
-            let postIndex = postIndexs.find(p => p.title === postBaseInfo.title);
-            if (postIndex) {
-                let blogPostFile = new BlogPostFile(postIndex);
-                blogPostFile.rename(newTitle);
-                postBaseInfo.fsPath = blogPostFile.postPath;
-                this.savePostIndexs(folderPath, postIndexs);
-            }
+            this.updataOrAddIndex(postIndex);
         }
     }
 
@@ -249,16 +333,12 @@ export class BlogFile {
      * @param postBaseInfo 
      */
     public deletePost(postBaseInfo: PostBaseInfo): void {
-        if (postBaseInfo.fsPath) {
-            let folderPath = blogWorkspace.folderPath;
-            let postIndexs = this.readPostIndexs(folderPath);
-            let index = postIndexs.findIndex(p => p.title === postBaseInfo.title);
-            if (index !== -1) {
-                let blogPostFile = new BlogPostFile(postIndexs[index]);
-                blogPostFile.delete();
-                postIndexs.splice(index, 1);
-                this.savePostIndexs(folderPath, postIndexs);
-            }
+        let index = this.postIndexs.findIndex(p => p.id === postBaseInfo.id);
+        if (index !== -1) {
+            let blogPostFile = new BlogPostFile(this.postIndexs[index]);
+            blogPostFile.delete();
+            this.postIndexs.splice(index, 1);
+            this.savePostIndexs();
         }
     }
 }

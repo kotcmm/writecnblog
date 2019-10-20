@@ -9,17 +9,23 @@ export class BlogWorkspace {
 
     private context: vscode.ExtensionContext | undefined;
 
+    private _workspaceFolder: Uri | undefined;
+
     get workspaceFolder(): Uri | undefined {
         if (this.context === undefined) {
             throw new Error("请先初始化context");
         }
-        return this.context.globalState.get<Uri>(blogWorkspaceFolderKey);
+        if (!this._workspaceFolder) {
+            this._workspaceFolder = this.context.globalState.get<Uri>(blogWorkspaceFolderKey);
+        }
+        return this._workspaceFolder;
     }
 
     set workspaceFolder(uri: Uri | undefined) {
         if (this.context === undefined) {
             throw new Error("请先初始化context");
         }
+        this._workspaceFolder = uri;
         this.context.globalState.update(blogWorkspaceFolderKey, uri);
     }
 

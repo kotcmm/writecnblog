@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { blogOperate } from '../blog/blog-operate';
-import { BlogPostItem } from '../blog/blog-post-provider';
+import { BlogPostItem, blogPostProvider } from '../blog/blog-post-provider';
 import { blogFile } from '../blog/blog-file';
 
 export function pullPostActivate(context: vscode.ExtensionContext) {
@@ -26,6 +26,7 @@ export function pullPostActivate(context: vscode.ExtensionContext) {
                 }
 
                 var p = new Promise(resolve => {
+                    blogPostProvider.refresh();
                     resolve();
                 });
 
