@@ -15,6 +15,8 @@ import { deletePostActivate } from './commands/deletePost';
 import { blogCategoriesProvider } from './blog/blog-categories-provider';
 import { refreshCategoriesActivate } from './commands/refreshCategories';
 import { createCategoryActivate } from './commands/createCategory';
+import { addCategoryActivate } from './commands/addCategory';
+import { removeCategoryActivate } from './commands/removeCategory';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -33,6 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
     deletePostActivate(context);
     refreshCategoriesActivate(context);
     createCategoryActivate(context);
+    addCategoryActivate(context);
+    removeCategoryActivate(context);
 }
 
 export function deactivate() {

@@ -341,6 +341,39 @@ export class BlogFile {
             this.savePostIndexs();
         }
     }
+
+    /**
+     * 添加一个或者多个分类
+     * @param id 
+     * @param categories 
+     */
+    public addCategories(id: number, categories: string[]) {
+        let postIndex = this.postIndexs.find(p => p.id === id);
+        if (postIndex) {
+            if (postIndex.categories) {
+                postIndex.categories.push(...categories);
+            } else {
+                postIndex.categories = categories;
+            }
+            this.updataOrAddIndex(postIndex);
+        }
+    }
+
+    /**
+     * 删除一个分类
+     * @param id 
+     * @param category 
+     */
+    public removeCategory(id: number, category: string) {
+        let postIndex = this.postIndexs.find(p => p.id === id);
+        if (postIndex) {
+            if (postIndex.categories) {
+                let index = postIndex.categories.indexOf(category);
+                postIndex.categories.splice(index, 1);
+                this.updataOrAddIndex(postIndex);
+            }
+        }
+    }
 }
 
 export const blogFile: BlogFile = new BlogFile();

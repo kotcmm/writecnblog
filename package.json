@@ -109,6 +109,20 @@
                     "light": "resources/light/create.svg",
                     "dark": "resources/dark/create.svg"
                 }
+            },
+            {
+                "command": "writeCnblog.addCategory",
+                "title": "添加分类",
+                "category": "CnBlog"
+            },
+            {
+                "command": "writeCnblog.removeCategory",
+                "title": "移除分类",
+                "category": "CnBlog",
+                "icon": {
+                    "light": "resources/light/trash.svg",
+                    "dark": "resources/dark/trash.svg"
+                }
             }
         ],
         "keybindings": [{
@@ -211,6 +225,16 @@
                     "command": "writeCnblog.deletePost",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@5"
+                },
+                {
+                    "command": "writeCnblog.addCategory",
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@2"
+                },
+                {
+                    "command": "writeCnblog.removeCategory",
+                    "when": "view == blogPostExplorer && viewItem == Category",
+                    "group": "inline"
                 }
             ]
         }

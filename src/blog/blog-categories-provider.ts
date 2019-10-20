@@ -9,6 +9,14 @@ export class BlogCategoriesProvider implements vscode.TreeDataProvider<vscode.Tr
 
     private categories: Array<CategoryInfoStruct> | undefined;
 
+    public async getCategories(): Promise<string[]> {
+        if (!this.categories) {
+            this.categories = await blogOperate.getCategories();
+        }
+
+        return this.categories.map(c => c.title);
+    }
+
     public async refresh(): Promise<any> {
         this.categories = await blogOperate.getCategories();
         this._onDidChangeTreeData.fire();

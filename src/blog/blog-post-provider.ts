@@ -24,11 +24,9 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
             element.collapsibleState = element.postBaseInfo!.categories ?
                 vscode.TreeItemCollapsibleState.Collapsed :
                 vscode.TreeItemCollapsibleState.None;
-
-            return element;
         }
 
-        return { label: element.label } as vscode.TreeItem;
+        return element;
     }
 
     getChildren(element?: BlogPostItem | undefined): vscode.ProviderResult<BlogPostItem[]> {
@@ -40,7 +38,8 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
                 return {
                     type: BlogPostItemType.category,
                     label: c,
-                    postBaseInfo: undefined
+                    postBaseInfo: element.postBaseInfo,
+                    contextValue: "Category"
                 };
             });
         }
