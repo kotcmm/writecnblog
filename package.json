@@ -25,7 +25,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "category": "CnBlog",
@@ -125,12 +126,14 @@
                 }
             }
         ],
-        "keybindings": [{
-            "command": "writeCnblog.postImageFromClipboard",
-            "key": "shift+alt+i",
-            "mac": "shift+alt+i",
-            "when": "editorTextFocus && editorLangId == 'markdown'"
-        }],
+        "keybindings": [
+            {
+                "command": "writeCnblog.postImageFromClipboard",
+                "key": "shift+alt+i",
+                "mac": "shift+alt+i",
+                "when": "editorTextFocus && editorLangId == 'markdown'"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "writeCnblog configuration",
@@ -153,14 +156,17 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [{
-                "id": "write-cnblog",
-                "title": "WriteCnblog",
-                "icon": "resources/write-cnblog.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
         },
         "views": {
-            "write-cnblog": [{
+            "write-cnblog": [
+                {
                     "id": "blogPostExplorer",
                     "name": "文章列表"
                 },
@@ -171,7 +177,8 @@
             ]
         },
         "menus": {
-            "view/title": [{
+            "view/title": [
+                {
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
@@ -196,7 +203,8 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [{
+            "view/item/context": [
+                {
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@2"
