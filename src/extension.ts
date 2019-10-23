@@ -18,6 +18,7 @@ import { createCategoryActivate } from './commands/createCategory';
 import { addCategoryActivate } from './commands/addCategory';
 import { removeCategoryActivate } from './commands/removeCategory';
 import { setConfigActivate } from './commands/setConfig';
+import { pasteImageFromClipboardActivate } from './commands/pasteImageFromClipboard';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
     createCategoryActivate(context);
     addCategoryActivate(context);
     removeCategoryActivate(context);
+    pasteImageFromClipboardActivate(context);
 }
 
 export function deactivate() {

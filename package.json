@@ -89,7 +89,7 @@
                 "category": "CnBlog"
             },
             {
-                "command": "writeCnblog.postImageFromClipboard",
+                "command": "writeCnblog.pasteImageFromClipboard",
                 "title": "粘贴剪贴板图片",
                 "category": "CnBlog"
             },
@@ -128,9 +128,9 @@
         ],
         "keybindings": [
             {
-                "command": "writeCnblog.postImageFromClipboard",
-                "key": "shift+alt+i",
-                "mac": "shift+alt+i",
+                "command": "writeCnblog.pasteImageFromClipboard",
+                "key": "shift+alt+v",
+                "mac": "shift+alt+v",
                 "when": "editorTextFocus && editorLangId == 'markdown'"
             }
         ],
