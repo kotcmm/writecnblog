@@ -1,33 +1,14 @@
-# Welcome to your VS Code Extension
+# 下载运行说明
 
-## What's in the folder
-* This folder contains all of the files necessary for your extension.
-* `package.json` - this is the manifest file in which you declare your extension and command.
-The sample plugin registers a command and defines its title and command name. With this information
-VS Code can show the command in the command palette. It doesn’t yet need to load the plugin.
-* `src/extension.ts` - this is the main file where you will provide the implementation of your command.
-The file exports one function, `activate`, which is called the very first time your extension is
-activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
-We pass the function containing the implementation of the command as the second parameter to
-`registerCommand`.
+## 下载源码
 
-## Get up and running straight away
-* Press `F5` to open a new window with your extension loaded.
-* Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
-* Set breakpoints in your code inside `src/extension.ts` to debug your extension.
-* Find output from your extension in the debug console.
+    git clone https://github.com/kotcmm/writecnblog.git
 
-## Make changes
-* You can relaunch the extension from the debug toolbar after changing code in `src/extension.ts`.
-* You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
+进入项目目录，运行 `npm i` 进行依赖包安装
+`clipboard-data`需要单独安装来适配vscode运行
 
-## Explore the API
-* You can open the full set of our API when you open the file `node_modules/vscode/vscode.d.ts`.
+    npm i clipboard-data --runtime=electron --target=69 
 
-## Run tests
-* Open the debug viewlet (`Ctrl+Shift+D` or `Cmd+Shift+D` on Mac) and from the launch configuration dropdown pick `Launch Tests`.
-* Press `F5` to run the tests in a new window with your extension loaded.
-* See the output of the test result in the debug console.
-* Make changes to `test/extension.test.ts` or create new test files inside the `test` folder.
-    * By convention, the test runner will only consider files matching the name pattern `**.test.ts`.
-    * You can create folders inside the `test` folder to structure your tests any way you want.
+`--target`为`abi`版本号，也就是`NODE_MODULE_VERSION`。
+
+安装完成后，用vscode打开项目，按`F5`进行插件运行和调试，选择`Extension Tests`可以运行测试用例
