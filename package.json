@@ -111,8 +111,8 @@
                 }
             },
             {
-                "command": "writeCnblog.addCategory",
-                "title": "添加分类",
+                "command": "writeCnblog.selectCategory",
+                "title": "选择分类",
                 "category": "CnBlog"
             },
             {
@@ -237,7 +237,7 @@
                     "group": "1@5"
                 },
                 {
-                    "command": "writeCnblog.addCategory",
+                    "command": "writeCnblog.selectCategory",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@2"
                 },

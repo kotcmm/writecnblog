@@ -14,7 +14,7 @@ import { deletePostActivate } from './commands/deletePost';
 import { blogCategoriesProvider } from './blog/blog-categories-provider';
 import { refreshCategoriesActivate } from './commands/refreshCategories';
 import { createCategoryActivate } from './commands/createCategory';
-import { addCategoryActivate } from './commands/addCategory';
+import { selectCategoryActivate } from './commands/selectCategory';
 import { removeCategoryActivate } from './commands/removeCategory';
 import { setConfigActivate } from './commands/setConfig';
 import { pasteImageFromClipboardActivate } from './commands/pasteImageFromClipboard';
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
     deletePostActivate(context);
     refreshCategoriesActivate(context);
     createCategoryActivate(context);
-    addCategoryActivate(context);
+    selectCategoryActivate(context);
     removeCategoryActivate(context);
     pasteImageFromClipboardActivate(context);
 }

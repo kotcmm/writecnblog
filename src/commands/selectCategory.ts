@@ -3,9 +3,9 @@ import { blogPostProvider, BlogPostItem } from '../blog/blog-post-provider';
 import { blogCategoriesProvider } from '../blog/blog-categories-provider';
 import { blogFile } from '../blog/blog-file';
 
-export function addCategoryActivate(context: vscode.ExtensionContext) {
+export function selectCategoryActivate(context: vscode.ExtensionContext) {
 
-    let addCategoryDisposable = vscode.commands.registerCommand('writeCnblog.addCategory',
+    let selectCategoryDisposable = vscode.commands.registerCommand('writeCnblog.selectCategory',
         (blogPostItem: BlogPostItem) => {
             vscode.window.showQuickPick(
                 getCategories(blogPostItem),
@@ -28,7 +28,7 @@ export function addCategoryActivate(context: vscode.ExtensionContext) {
             });
         });
 
-    context.subscriptions.push(addCategoryDisposable);
+    context.subscriptions.push(selectCategoryDisposable);
 }
 
 async function getCategories(blogPostItem: BlogPostItem): Promise<string[]> {
