@@ -47,6 +47,14 @@ export class BlogConfig {
     async setRpcUrl(value: string) {
         await this.config.update('rpcUrl', value, true);
     }
+
+    blogWorkspace(): string | undefined {
+        return this.config.get<string>('blogWorkspace');
+    }
+
+    async setBlogWorkspace(value: string) {
+        await this.config.update('blogWorkspace', value, true);
+    }
 }
 
 export const blogConfig = new BlogConfig();

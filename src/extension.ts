@@ -1,7 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
 
-import { blogWorkspace } from './blog/blog-workspace';
 import { diffPostActivate } from './commands/diffPost';
 import { openPostActivate } from './commands/openPost';
 import { getRecentPostsActivate } from './commands/getRecentPosts';
@@ -23,7 +22,6 @@ import { pasteImageFromClipboardActivate } from './commands/pasteImageFromClipbo
 export function activate(context: vscode.ExtensionContext) {
 
     blogPostProvider.initialize(context);
-    blogWorkspace.initialize(context);
     vscode.window.createTreeView('blogPostExplorer', { treeDataProvider: blogPostProvider });
     vscode.window.createTreeView('blogCategoriesExplorer', { treeDataProvider: blogCategoriesProvider });
     setConfigActivate(context);

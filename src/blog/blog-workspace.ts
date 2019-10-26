@@ -1,47 +1,29 @@
 import * as vscode from 'vscode';
-import { Uri } from "vscode";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
-import { blogWorkspaceFolderKey, blogDirName, remotePostDirName } from '../constants';
+import { blogDirName, remotePostDirName } from '../constants';
+import { blogConfig } from './blog-config';
 
 export class BlogWorkspace {
 
-    private context: vscode.ExtensionContext | undefined;
-
-    private _workspaceFolder: Uri | undefined;
-
-    get workspaceFolder(): Uri | undefined {
-        if (this.context === undefined) {
-            throw new Error("请先初始化context");
-        }
-        if (!this._workspaceFolder) {
-            this._workspaceFolder = this.context.globalState.get<Uri>(blogWorkspaceFolderKey);
-        }
-        return this._workspaceFolder;
+    private get workspaceFolder(): string | undefined {
+        return blogConfig.blogWorkspace();
     }
 
-    set workspaceFolder(uri: Uri | undefined) {
-        if (this.context === undefined) {
-            throw new Error("请先初始化context");
-        }
-        this._workspaceFolder = uri;
-        this.context.globalState.update(blogWorkspaceFolderKey, uri);
-    }
-
-    public initialize(context: vscode.ExtensionContext): void {
-        this.context = context;
+    async setWorkspaceFolder(fsPath: string) {
+        await blogConfig.setBlogWorkspace(fsPath);
     }
 
     /**
      * 判断是否为文章的工作目录
-     * @param uri 
+     * @param fsPath 
      */
-    private isBlogDirectory(uri: vscode.Uri): boolean {
-        const children = fs.readdirSync(uri.fsPath);
+    private isBlogDirectory(fsPath: string): boolean {
+        const children = fs.readdirSync(fsPath);
         for (let i = 0; i < children.length; i++) {
             const child = children[i];
-            const stat = fs.statSync(path.join(uri.fsPath, child));
+            const stat = fs.statSync(path.join(fsPath, child));
             if (stat.isDirectory() && child === blogDirName) {
                 return true;
             }
@@ -52,7 +34,7 @@ export class BlogWorkspace {
     /**
      * 选择工作目录
      */
-    private async selectWorkspace(): Promise<Uri | undefined> {
+    private async selectWorkspace(): Promise<string | undefined> {
         let uris = await vscode.window.showOpenDialog({
             canSelectFolders: true,
             canSelectFiles: false,
@@ -60,7 +42,7 @@ export class BlogWorkspace {
         });
 
         if (uris) {
-            return uris[0];
+            return uris[0].fsPath;
         }
 
         return undefined;
@@ -70,18 +52,20 @@ export class BlogWorkspace {
      * 是否有选择一个工作空间
      */
     get hasWorkspace(): boolean {
-        return this.workspaceFolder !== undefined &&
-            this.isBlogDirectory(this.workspaceFolder);
+        if (this.workspaceFolder) {
+            return this.isBlogDirectory(this.workspaceFolder);
+        }
+        return false;
     }
 
     /**
     * 本地文章存储文件夹
     */
     get folderPath(): string {
-        if (this.workspaceFolder === undefined) {
+        if (!this.workspaceFolder) {
             throw new Error("请先选择一个工作空间");
         }
-        return this.workspaceFolder.fsPath;
+        return this.workspaceFolder;
     }
 
     /**
@@ -96,25 +80,22 @@ export class BlogWorkspace {
      */
     public async tryCreateBlogWorkspace(): Promise<boolean> {
 
-        if (this.context === undefined) {
-            throw new Error("请先初始化context");
-        }
-
         let workspaceFolder = this.workspaceFolder;
         let folder = workspaceFolder ? workspaceFolder : await this.selectWorkspace();
 
-        this.workspaceFolder = folder;
-        if (folder && this.isBlogDirectory(folder)) {
+        if (!folder) {
+            return false;
+        }
+
+        await this.setWorkspaceFolder(folder);
+        if (this.isBlogDirectory(folder)) {
             return true;
         }
 
-        if (folder) {
-            mkdirp.sync(this.folderPath);
-            mkdirp.sync(this.remoteFolderPath);
-            return true;
-        }
+        mkdirp.sync(this.folderPath);
+        mkdirp.sync(this.remoteFolderPath);
 
-        return false;
+        return true;
     }
 }
 
