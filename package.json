@@ -42,6 +42,14 @@
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
+            }, {
+                "command": "writeCnblog.seeLink",
+                "title": "查看预览",
+                "category": "CnBlog",
+                "icon": {
+                    "light": "resources/light/eye.svg",
+                    "dark": "resources/dark/eye.svg"
+                }
             },
             {
                 "command": "writeCnblog.setConfig",
@@ -213,6 +221,11 @@
                 },
                 {
                     "command": "writeCnblog.savePost",
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "inline"
+                },
+                {
+                    "command": "writeCnblog.seeLink",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "inline"
                 },

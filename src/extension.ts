@@ -18,6 +18,7 @@ import { selectCategoryActivate } from './commands/selectCategory';
 import { removeCategoryActivate } from './commands/removeCategory';
 import { setConfigActivate } from './commands/setConfig';
 import { pasteImageFromClipboardActivate } from './commands/pasteImageFromClipboard';
+import { seeLinkActivate } from './commands/seeLink';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -26,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.createTreeView('blogCategoriesExplorer', { treeDataProvider: blogCategoriesProvider });
     setConfigActivate(context);
     createPostActivate(context);
+    seeLinkActivate(context);
     getRecentPostsActivate(context);
     openPostActivate(context);
     diffPostActivate(context);
