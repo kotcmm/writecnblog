@@ -11,7 +11,7 @@ export class RpcXmlSerialize {
             for (let key in value.params) {
                 if (value.params.hasOwnProperty(key)) {
                     let element = value.params[key];
-                    if (element !== null) {
+                    if (element !== null && element !== undefined) {
                         doc.push('<param><value>');
                         doc.push(this.paramBuild(element));
                         doc.push('</value></param>');
@@ -57,9 +57,11 @@ export class RpcXmlSerialize {
         let paramDoc = new Array<string>();
         paramDoc.push('<array><data>');
         for (let i = 0, len = param.length; i < len; i++) {
-            paramDoc.push('<value>');
-            paramDoc.push(this.paramBuild(param[i]));
-            paramDoc.push('</value>');
+            if (param[i] !== null && param[i] !== undefined) {
+                paramDoc.push('<value>');
+                paramDoc.push(this.paramBuild(param[i]));
+                paramDoc.push('</value>');
+            }
         }
         paramDoc.push('</data></array>');
         return paramDoc.join('');
@@ -75,12 +77,14 @@ export class RpcXmlSerialize {
         for (let key in param) {
             if (param.hasOwnProperty(key)) {
                 let element = param[key];
-                paramDoc.push('<member>');
-                paramDoc.push(`<name>${key}</name>`);
-                paramDoc.push('<value>');
-                paramDoc.push(this.paramBuild(element));
-                paramDoc.push('</value>');
-                paramDoc.push('</member>');
+                if (element !== null && element !== undefined) {
+                    paramDoc.push('<member>');
+                    paramDoc.push(`<name>${key}</name>`);
+                    paramDoc.push('<value>');
+                    paramDoc.push(this.paramBuild(element));
+                    paramDoc.push('</value>');
+                    paramDoc.push('</member>');
+                }
             }
         }
         paramDoc.push('</struct>');

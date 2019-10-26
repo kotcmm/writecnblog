@@ -1,63 +1,44 @@
-# writeCnblog README
+# WriteCnblog README
 
-"writeCnblog" 是一个基于rpcxml协议给[博客园](http://www.cnblogs.com/)发布Markdown格式的插件
+"WriteCnblog" 是一个基于rpcxml协议给[博客园](http://www.cnblogs.com/)发布Markdown格式的插件
+
+![](resources/home.png)
 
 ## Features
 
-将图片上传到博客园，并返回图片的地址。
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
+- [X]  选择博客工作空间
+- [X]  配置并登录
+- [X]  新建文章
+- [X]  拉取最近文章
+- [X]  保存草稿
+- [X]  发布文章
+- [X]  比较修改文章
+- [X]  删除文章
+- [X]  选择文章分类
+- [X]  新增分类
+- [ ]  跳转文章网页
 
 ## Requirements
 
-需要vs code版本在1.1.21以上。
+需要vs code版本在1.31.0以上。
 
 ## Extension Settings
 
-This extension contributes the following settings:
-
-* `writeCnblog.blogName`: 博客园的Blog地址名
+* `writeCnblog.rpcUrl`: 博客园的MetaWeblog接口地址（我的博客管理 -> [设置](https://i.cnblogs.com/Configure.aspx)，拉到最下面，有个MetaWeblog访问地址）
 * `writeCnblog.userName`: 博客园的用户名
-* `writeCnblog.passWord`: 博客园的密码
+* `writeCnblog.blogId`: 博客id（设置配置后，成功登录会自动获取）
+* `writeCnblog.blogWorkspace`: 工作空间（存放博客文章的相关内容）
+* `writeCnblog.recentPostCount`: 最近文章的数量
 
 ## Known Issues
 
+- 修改文章后保存，文章列表状态不会立刻变化
+- 如果文章里面的图片地址是网络地址，那么提交后，更新到本地会导致文章一直显示为修改状态
+
 ## Release Notes
 
-### 0.0.9
+[CHANGELOG](CHANGELOG.md)
 
-没有文件夹时自动创建
-
-### 0.0.8
-
-将剪切板的图片直接保存本地并上传到博客园。
-
-### 0.0.6
-
-插入的图片加上本地文件名，如`![本地文件名](图片url)`
-
-### 0.0.5
-
-修复配置可以被读取到。
-
-### 0.0.4
-
-用户名密码从配置中读取，图片可以直接选择。
-
-#### v0.0.2更新
-
-1.保存用户名密码到钥匙串里面
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-* 通过 (`Shift+i` on macOS or `Shift+i` on Windows and Linux)选择一个需要上传的图片，上传成功会返回一个`![图片名](图片url)`
-
-* 通过 (`Shift+Alt+i` on macOS or `Shift+Alt+i` on Windows and Linux)从剪切板读取图片保存到当前markdown目录的Images/markdown文件名/中并上传的图片，上传成功会返回一个`![图片名](图片url)`
 
 ### For more information
 

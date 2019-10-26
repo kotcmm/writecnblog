@@ -12,16 +12,24 @@ export enum PostState {
 }
 
 export interface PostBaseInfo {
+    id: number;
     postId?: any;
     title: string;
     remoteTitle?: string;
     state: PostState;
     fsPath: string;
     remotePath?: string;
+    categories?: Array<string>;
+    link?: string;
+    permalink?: string;
 }
 
 export interface PostIndexInfo {
+    id: number;
     postid: any;
     title: string;
     remoteTitle?: string;
+    categories?: Array<string>;
+    link?: string;
+    permalink?: string;
 }

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { blogFile } from './blog-file';
 import { PostState, PostBaseInfo } from './shared';
+import { blogConfig } from './blog-config';
 
 export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
 
@@ -19,16 +20,48 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
     }
 
     getTreeItem(element: BlogPostItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+
+        if (element.type === BlogPostItemType.post) {
+            element.collapsibleState = element.postBaseInfo!.categories ?
+                vscode.TreeItemCollapsibleState.Collapsed :
+                vscode.TreeItemCollapsibleState.None;
+        }
+
         return element;
     }
 
     getChildren(element?: BlogPostItem | undefined): vscode.ProviderResult<BlogPostItem[]> {
-        const postBaseInfos = blogFile.readPosts();
-        return postBaseInfos.sort((a, b) => {
+
+        if (!blogConfig.blogId) {
+            return [{
+                label: "配置用户信息",
+                command: {
+                    command: 'writeCnblog.setConfig',
+                    title: "配置用户信息"
+                }
+            } as BlogPostItem];
+        }
+
+        if (element &&
+            element.postBaseInfo &&
+            element.postBaseInfo.categories) {
+            return element.postBaseInfo.categories.map<BlogPostItem>(c => {
+                return {
+                    type: BlogPostItemType.category,
+                    label: c,
+                    postBaseInfo: element.postBaseInfo,
+                    contextValue: "Category"
+                };
+            });
+        }
+
+        return blogFile.readPosts().sort((a, b) => {
             return a.state - b.state;
         }).map<BlogPostItem>((postBaseInfo) => {
             return {
+                type: BlogPostItemType.post,
                 label: postBaseInfo.title,
+                description: postBaseInfo.postId.toString(),
                 postBaseInfo: postBaseInfo,
                 contextValue: this.getContextValue(postBaseInfo),
                 command: {
@@ -70,5 +103,10 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
 export const blogPostProvider = new BlogPostProvider();
 
 export class BlogPostItem extends vscode.TreeItem {
+    type: BlogPostItemType | undefined;
     postBaseInfo: PostBaseInfo | undefined;
+}
+
+export enum BlogPostItemType {
+    post, category
 }

@@ -10,14 +10,19 @@ export function deletePostActivate(context: vscode.ExtensionContext) {
             vscode.window
                 .showWarningMessage(`是否删除${blogPostItem.label}`, '删除', '取消')
                 .then(async selection => {
-                    if (selection === '删除' && blogPostItem.postBaseInfo) {
-                        let postId = blogPostItem.postBaseInfo.postId;
-                        if (postId) {
-                            await blogOperate.deletePost(postId, false);
+                    try {
+                        if (selection === '删除' && blogPostItem.postBaseInfo) {
+                            let postId = blogPostItem.postBaseInfo.postId;
+                            if (postId) {
+                                await blogOperate.deletePost(postId, false);
+                            }
+                            blogFile.deletePost(blogPostItem.postBaseInfo);
+                            blogPostProvider.refresh();
                         }
-                        blogFile.deletePost(blogPostItem.postBaseInfo);
-                        blogPostProvider.refresh();
+                    } catch (error) {
+                        vscode.window.showErrorMessage(error.message);
                     }
+
                 });
         });
 

@@ -2,10 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import { imageDirName, blogDirName, imageIndexName } from '../constants';
+import { blogWorkspace } from './blog-workspace';
+import { blogOperate } from './blog-operate';
 const request = require('request');
 
 const regexp = /!\[(.*?)\]\((.*?)\)/g;
 const urlRegexp = /(?<=\()[\S]+(?=\))/g;
+const httpRegexp = /(http|https):\/\/([\w.]+\/?)\S*/g;
 
 /**
  * 替换文章中的图片。
@@ -14,8 +17,60 @@ const urlRegexp = /(?<=\()[\S]+(?=\))/g;
  */
 export class PostImageReplace {
 
-    constructor(private folderPath: string) {
+    /**
+     * 博客工作目录
+     */
+    private get folderPath(): string {
+        return blogWorkspace.folderPath;
+    }
 
+    /**
+     * 本地地址转换为网络地址
+     * @param post 
+     */
+    public async toRemote(post: string): Promise<string> {
+        let images = post.match(regexp);
+        if (!images) { return post; }
+
+        let newPost = post;
+        let imageIndexs = this.readIndex();
+        for (let index = 0; index < images.length; index++) {
+            const image = images[index];
+            let urls = image.match(urlRegexp);
+            if (urls) {
+                let imageUrl = urls[0];
+                if (imageUrl.match(httpRegexp)) {
+                    continue;
+                }
+                let imageIndex = imageIndexs.find(ii => ii.local === imageUrl);
+                let remotePath = imageIndex ? imageIndex.remote : await this.imageUpload(imageUrl);
+                if (remotePath) {
+                    newPost = newPost.replace(image, image.replace(imageUrl, remotePath));
+                    if (!imageIndex) {
+                        imageIndexs.push({ local: imageUrl, remote: remotePath });
+                    }
+                }
+            }
+        }
+        this.saveIndex(imageIndexs);
+        return newPost;
+    }
+
+    /**
+     * 提交请求
+     * @param fileName 
+     */
+    private async imageUpload(fileName: string): Promise<string | undefined> {
+        let imagePath = path.join(this.folderPath, fileName);
+        if (fs.existsSync(imagePath)) {
+            let imageData = fs.readFileSync(imagePath);
+            let extname = path.extname(imagePath);
+            let name = path.basename(imagePath);
+            let type = `image/${extname.substr(0, extname.length - 1)}`;
+            return await blogOperate.newMediaObject(imageData, type, name);
+        }
+
+        return undefined;
     }
 
     /**
@@ -53,7 +108,7 @@ export class PostImageReplace {
             let extName = path.extname(url);
             mkdirp.sync(path.join(this.folderPath, imageDirName));
             let imagePath = path.join(imageDirName, `${Date.now().toString()}${extName}`);
-            //TODO;下载改成同步
+
             request.get(url)
                 .pipe(fs.createWriteStream(path.join(this.folderPath, imagePath)))
                 .on('finish', function () {
@@ -112,6 +167,8 @@ export class PostImageReplace {
         return postFiles;
     }
 }
+
+export const postImageReplace: PostImageReplace = new PostImageReplace();
 
 export interface ImageIndexInfo {
     local: string;

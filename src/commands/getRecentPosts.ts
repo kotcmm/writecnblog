@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { blogOperate } from '../blog/blog-operate';
 import { blogFile } from '../blog/blog-file';
 import { blogPostProvider } from '../blog/blog-post-provider';
+import { blogConfig } from '../blog/blog-config';
 
 export function getRecentPostsActivate(context: vscode.ExtensionContext) {
 
@@ -15,13 +16,20 @@ export function getRecentPostsActivate(context: vscode.ExtensionContext) {
                 token.onCancellationRequested(() => {
                     console.log("User canceled the long running operation");
                 });
-
-                progress.report({ increment: 0 });
-                progress.report({ increment: 10, message: "下载文章内容..." });
-                let posts = await blogOperate.getRecentPosts(100);
-                progress.report({ increment: 40, message: "下载图片和写入文章..." });
-                await blogFile.pullPosts(posts);
-                progress.report({ increment: 50, message: "下载完成" });
+                try {
+                    let recentPostCount = blogConfig.recentPostCount();
+                    if (!recentPostCount) {
+                        recentPostCount = 100;
+                    }
+                    progress.report({ increment: 0 });
+                    progress.report({ increment: 10, message: "下载文章内容..." });
+                    let posts = await blogOperate.getRecentPosts(recentPostCount);
+                    progress.report({ increment: 40, message: "下载图片和写入文章..." });
+                    await blogFile.pullPosts(posts);
+                    progress.report({ increment: 50, message: "下载完成" });
+                } catch (error) {
+                    vscode.window.showErrorMessage(error.message);
+                }
 
                 var p = new Promise(resolve => {
                     blogPostProvider.refresh();

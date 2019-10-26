@@ -25,8 +25,7 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
+        "commands": [{
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "category": "CnBlog",
@@ -36,8 +35,8 @@
                 }
             },
             {
-                "command": "writeCnblog.refresh",
-                "title": "刷新显示",
+                "command": "writeCnblog.getRecentPosts",
+                "title": "拉取最近文章",
                 "category": "CnBlog",
                 "icon": {
                     "light": "resources/light/refresh.svg",
@@ -45,13 +44,8 @@
                 }
             },
             {
-                "command": "writeCnblog.getRecentPosts",
-                "title": "拉取最近文章",
-                "category": "CnBlog"
-            },
-            {
-                "command": "writeCnblog.setUser",
-                "title": "设置用户",
+                "command": "writeCnblog.setConfig",
+                "title": "配置设置",
                 "category": "CnBlog"
             },
             {
@@ -94,7 +88,7 @@
                 "category": "CnBlog"
             },
             {
-                "command": "writeCnblog.postImageFromClipboard",
+                "command": "writeCnblog.pasteImageFromClipboard",
                 "title": "粘贴剪贴板图片",
                 "category": "CnBlog"
             },
@@ -115,16 +109,28 @@
                     "light": "resources/light/create.svg",
                     "dark": "resources/dark/create.svg"
                 }
-            }
-        ],
-        "keybindings": [
+            },
             {
-                "command": "writeCnblog.postImageFromClipboard",
-                "key": "shift+alt+i",
-                "mac": "shift+alt+i",
-                "when": "editorTextFocus && editorLangId == 'markdown'"
+                "command": "writeCnblog.selectCategory",
+                "title": "选择分类",
+                "category": "CnBlog"
+            },
+            {
+                "command": "writeCnblog.removeCategory",
+                "title": "移除分类",
+                "category": "CnBlog",
+                "icon": {
+                    "light": "resources/light/trash.svg",
+                    "dark": "resources/dark/trash.svg"
+                }
             }
         ],
+        "keybindings": [{
+            "command": "writeCnblog.pasteImageFromClipboard",
+            "key": "shift+alt+v",
+            "mac": "shift+alt+v",
+            "when": "editorTextFocus && editorLangId == 'markdown'"
+        }],
         "configuration": {
             "type": "object",
             "title": "writeCnblog configuration",
@@ -139,25 +145,32 @@
                     "default": "",
                     "description": "博客园的用户名"
                 },
-                "writeCnblog.passWord": {
+                "writeCnblog.blogId": {
                     "type": "string",
                     "default": "",
-                    "description": "博客园的密码"
+                    "description": "博客id"
+                },
+                "writeCnblog.blogWorkspace": {
+                    "type": "string",
+                    "default": "",
+                    "description": "工作空间"
+                },
+                "writeCnblog.recentPostCount": {
+                    "type": "number",
+                    "default": 100,
+                    "description": "最近文章的数量"
                 }
             }
         },
         "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "write-cnblog",
-                    "title": "WriteCnblog",
-                    "icon": "resources/write-cnblog.svg"
-                }
-            ]
+            "activitybar": [{
+                "id": "write-cnblog",
+                "title": "WriteCnblog",
+                "icon": "resources/write-cnblog.svg"
+            }]
         },
         "views": {
-            "write-cnblog": [
-                {
+            "write-cnblog": [{
                     "id": "blogPostExplorer",
                     "name": "文章列表"
                 },
@@ -168,23 +181,18 @@
             ]
         },
         "menus": {
-            "view/title": [
-                {
+            "view/title": [{
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
                 },
                 {
-                    "command": "writeCnblog.refresh",
+                    "command": "writeCnblog.getRecentPosts",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
                 },
                 {
-                    "command": "writeCnblog.getRecentPosts",
-                    "when": "view == blogPostExplorer"
-                },
-                {
-                    "command": "writeCnblog.setUser",
+                    "command": "writeCnblog.setConfig",
                     "when": "view == blogPostExplorer"
                 },
                 {
@@ -198,8 +206,7 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [
-                {
+            "view/item/context": [{
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@2"
@@ -228,6 +235,16 @@
                     "command": "writeCnblog.deletePost",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@5"
+                },
+                {
+                    "command": "writeCnblog.selectCategory",
+                    "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
+                    "group": "1@2"
+                },
+                {
+                    "command": "writeCnblog.removeCategory",
+                    "when": "view == blogPostExplorer && viewItem == Category",
+                    "group": "inline"
                 }
             ]
         }
@@ -249,10 +266,12 @@
         "vscode": "^1.1.36"
     },
     "dependencies": {
+        "clipboard-data": "0.0.3-beta.1",
+        "keytar": "^5.0.0-beta.3",
         "mkdirp": "^0.5.1",
-        "rimraf": "^2.6.2",
         "moment": "^2.24.0",
         "request": "^2.88.0",
+        "rimraf": "^2.6.2",
         "xml2js": "^0.4.19"
     }
 }

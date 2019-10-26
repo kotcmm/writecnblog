@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { blogOperate } from './blog-operate';
 import { CategoryInfoStruct } from '../rpc/rpc-package';
+import { blogConfig } from './blog-config';
 
 export class BlogCategoriesProvider implements vscode.TreeDataProvider<vscode.TreeItem>{
 
@@ -9,9 +10,21 @@ export class BlogCategoriesProvider implements vscode.TreeDataProvider<vscode.Tr
 
     private categories: Array<CategoryInfoStruct> | undefined;
 
+    public async getCategories(): Promise<string[]> {
+        if (!this.categories) {
+            this.categories = await blogOperate.getCategories();
+        }
+
+        return this.categories.map(c => c.title);
+    }
+
     public async refresh(): Promise<any> {
-        this.categories = await blogOperate.getCategories();
-        this._onDidChangeTreeData.fire();
+        try {
+            this.categories = await blogOperate.getCategories();
+            this._onDidChangeTreeData.fire();
+        } catch (error) {
+            vscode.window.showErrorMessage(error.message);
+        }
     }
 
     getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -19,6 +32,15 @@ export class BlogCategoriesProvider implements vscode.TreeDataProvider<vscode.Tr
     }
 
     getChildren(element?: vscode.TreeItem | undefined): vscode.ProviderResult<vscode.TreeItem[]> {
+        if (!blogConfig.blogId) {
+            return [{
+                label: "配置用户信息",
+                command: {
+                    command: 'writeCnblog.setConfig',
+                    title: "配置用户信息"
+                }
+            } as vscode.TreeItem];
+        }
 
         if (this.categories) {
             return this.categories.map(c => {
