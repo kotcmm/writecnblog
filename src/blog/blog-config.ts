@@ -55,6 +55,14 @@ export class BlogConfig {
     async setBlogWorkspace(value: string) {
         await this.config.update('blogWorkspace', value, true);
     }
+
+    recentPostCount(): number | undefined {
+        return this.config.get<number>('recentPostCount');
+    }
+
+    async setrecentPostCount(value: number) {
+        await this.config.update('recentPostCount', value, true);
+    }
 }
 
 export const blogConfig = new BlogConfig();

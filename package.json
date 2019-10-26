@@ -154,6 +154,11 @@
                     "type": "string",
                     "default": "",
                     "description": "工作空间"
+                },
+                "writeCnblog.recentPostCount": {
+                    "type": "number",
+                    "default": 100,
+                    "description": "最近文章的数量"
                 }
             }
         },
