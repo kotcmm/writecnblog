@@ -22,10 +22,14 @@ jobs:
         npm ci
         npm run vscode:prepublish
         npm test
-
     - name: package
       run: |
           npm install -g vsce
-          vsce package
+          vsce package -o write-cnblog.vsix
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: write-cnblog.vsix
       env:
         CI: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
