@@ -21,7 +21,6 @@ jobs:
       run: |
         npm ci
         npm run vscode:prepublish
-        npm test
     - name: package
       run: |
           npm install -g vsce
