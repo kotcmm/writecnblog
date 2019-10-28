@@ -279,21 +279,42 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^8.10.54",
+        "@types/yauzl": "^2.9.1",
         "@types/mkdirp": "^0.5.2",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^10.11.3",
         "@types/rimraf": "^2.0.2",
+        "@types/tmp": "0.0.33",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vscode": "^1.1.36"
     },
     "dependencies": {
-        "clipboard-data": "0.0.3-beta.1",
+        "clipboard-data": "0.0.3-beta.5",
+        "http-proxy-agent": "2.1.0",
+        "https-proxy-agent": "2.2.1",
         "keytar": "^5.0.0-beta.3",
         "mkdirp": "^0.5.1",
         "moment": "^2.24.0",
         "request": "^2.88.0",
         "rimraf": "^2.6.2",
-        "xml2js": "^0.4.19"
-    }
+        "tmp": "0.0.33",
+        "xml2js": "^0.4.19",
+        "yauzl": "^2.10.0"
+    },
+    "runtimeDependencies": [
+        {
+            "description": "clipboard-data for Windows",
+            "url": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.5/clipboard-data-v0.0.3-beta.5-electron-v69-win32-x64.tar.gz",
+            "fallbackUrl": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.5/clipboard-data-v0.0.3-beta.5-electron-v69-win32-x64.tar.gz",
+            "installPath": ".omnisharp/1.34.5",
+            "platforms": [
+                "win32"
+            ],
+            "architectures": [
+                "x64"
+            ],
+            "installTestPath": "./.omnisharp/1.34.5/OmniSharp.exe"
+        }
+    ]
 }
