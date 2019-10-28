@@ -6,50 +6,20 @@
 import * as vscode from 'vscode';
 import { lazy } from './lazy';
 
-export enum Trace {
-    Off,
-    Verbose
-}
-
-export namespace Trace {
-    export function fromString(value: string): Trace {
-        value = value.toLowerCase();
-        switch (value) {
-            case 'off':
-                return Trace.Off;
-            case 'verbose':
-                return Trace.Verbose;
-            default:
-                return Trace.Off;
-        }
-    }
-}
-
 
 function isString(value: any): value is string {
     return Object.prototype.toString.call(value) === '[object String]';
 }
 
 export class Logger {
-    private trace?: Trace;
 
-    private readonly outputChannel = lazy(() => vscode.window.createOutputChannel('reStructuredText'));
-
-    constructor() {
-        this.updateConfiguration();
-    }
+    private readonly outputChannel = lazy(() => vscode.window.createOutputChannel('write-cnblog'));
 
     public log(message: string, data?: any): void {
-        if (this.trace === Trace.Verbose) {
-            this.appendLine(`[Log - ${(new Date().toLocaleTimeString())}] ${message}`);
-            if (data) {
-                this.appendLine(Logger.data2String(data));
-            }
+        this.appendLine(`[Log - ${(new Date().toLocaleTimeString())}] ${message}`);
+        if (data) {
+            this.appendLine(Logger.data2String(data));
         }
-    }
-
-    public updateConfiguration() {
-        this.trace = this.readTrace();
     }
 
     public appendLine(value: string = '') {
@@ -62,10 +32,6 @@ export class Logger {
 
     public show() {
         this.outputChannel.value.show();
-    }
-
-    private readTrace(): Trace {
-        return Trace.fromString(vscode.workspace.getConfiguration().get<string>('restructuredtext.trace', 'off'));
     }
 
     private static data2String(data: any): string {

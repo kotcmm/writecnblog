@@ -5,15 +5,18 @@
 
 import * as fs from 'fs';
 import * as https from 'https';
-import * as mkdirp from 'mkdirp';
+// import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import { parse as parseUrl } from 'url';
-import * as yauzl from 'yauzl';
+// import * as yauzl from 'yauzl';
 import * as util from './common';
 import { Logger } from './logger';
 import { PlatformInformation } from './platform';
 import { getProxyAgent } from './proxy';
+let pump = require('pump');
+let tfs = require('tar-fs');
+let zlib = require('zlib');
 
 export interface Package {
     description: string;
@@ -280,58 +283,93 @@ function installPackage(pkg: Package, logger: Logger, status?: Status): Promise<
             return reject(new PackageError('Downloaded file unavailable', pkg));
         }
 
-        yauzl.fromFd(pkg.tmpFile.fd, { lazyEntries: true }, (err, zipFile) => {
-            if (err || !zipFile) {
-                return reject(new PackageError('Immediate zip file error', pkg, err));
-            }
-
-            zipFile.readEntry();
-
-            zipFile.on('entry', (entry: yauzl.Entry) => {
-                let absoluteEntryPath = path.resolve(getBaseInstallPath(pkg), entry.fileName);
-
-                if (entry.fileName.endsWith('/')) {
-                    // Directory - create it
-                    mkdirp(absoluteEntryPath, { mode: 0o775 }, err => {
-                        if (err) {
-                            return reject(new PackageError('Error creating directory for zip directory entry:' + err.code || '', pkg, err));
-                        }
-
-                        zipFile.readEntry();
-                    });
-                }
-                else {
-                    // File - extract it
-                    zipFile.openReadStream(entry, (err, readStream) => {
-                        if (err || !readStream) {
-                            return reject(new PackageError('Error reading zip stream', pkg, err));
-                        }
-
-                        mkdirp(path.dirname(absoluteEntryPath), { mode: 0o775 }, err => {
-                            if (err) {
-                                return reject(new PackageError('Error creating directory for zip file entry', pkg, err));
-                            }
-
-                            // Make sure executable files have correct permissions when extracted
-                            let fileMode = pkg.binaries && pkg.binaries.indexOf(absoluteEntryPath) !== -1
-                                ? 0o755
-                                : 0o664;
-
-                            readStream.pipe(fs.createWriteStream(absoluteEntryPath, { mode: fileMode }));
-                            readStream.on('end', () => zipFile.readEntry());
-                        });
-                    });
-                }
-            });
-
-            zipFile.on('end', () => {
+        let binaryName: any;
+        let options = {
+            readable: true,
+            writable: true,
+            hardlinkAsFilesFallback: true
+        };
+        let extract = tfs.extract(pkg.installPath, options)
+            .on('entry', function (entry: any) {
+                if (/\.node$/i.test(entry.name)) { binaryName = entry.name; }
+            }).on('end', () => {
                 resolve();
             });
 
-            zipFile.on('error', err => {
-                reject(new PackageError('Zip File Error:' + err.code || '', pkg, err));
+        pump(fs.createReadStream(pkg.tmpFile.name),
+            zlib.createGunzip(),
+            extract,
+            function (err: any) {
+                if (err) {
+                    return reject(new PackageError('Immediate zip file error', pkg, err));
+                }
+
+                if (binaryName) {
+
+                    let absoluteEntryPath = path.resolve(getBaseInstallPath(pkg) || '.', binaryName);
+
+                    logger.appendLine('unpack resolved to ' + absoluteEntryPath);
+
+                    try {
+                        require(absoluteEntryPath);
+                    } catch (err) {
+                        return reject(new PackageError('require test error', pkg, err));
+                    }
+                    logger.appendLine('unpack required ' + absoluteEntryPath + ' successfully');
+                }
             });
-        });
+        // yauzl.fromFd(pkg.tmpFile.fd, { lazyEntries: true }, (err, zipFile) => {
+        //     if (err || !zipFile) {
+        //         return reject(new PackageError('Immediate zip file error', pkg, err));
+        //     }
+
+        //     zipFile.readEntry();
+
+        //     zipFile.on('entry', (entry: yauzl.Entry) => {
+        //         let absoluteEntryPath = path.resolve(getBaseInstallPath(pkg), entry.fileName);
+
+        //         if (entry.fileName.endsWith('/')) {
+        //             // Directory - create it
+        //             mkdirp(absoluteEntryPath, { mode: 0o775 }, err => {
+        //                 if (err) {
+        //                     return reject(new PackageError('Error creating directory for zip directory entry:' + err.code || '', pkg, err));
+        //                 }
+
+        //                 zipFile.readEntry();
+        //             });
+        //         }
+        //         else {
+        //             // File - extract it
+        //             zipFile.openReadStream(entry, (err, readStream) => {
+        //                 if (err || !readStream) {
+        //                     return reject(new PackageError('Error reading zip stream', pkg, err));
+        //                 }
+
+        //                 mkdirp(path.dirname(absoluteEntryPath), { mode: 0o775 }, err => {
+        //                     if (err) {
+        //                         return reject(new PackageError('Error creating directory for zip file entry', pkg, err));
+        //                     }
+
+        //                     // Make sure executable files have correct permissions when extracted
+        //                     let fileMode = pkg.binaries && pkg.binaries.indexOf(absoluteEntryPath) !== -1
+        //                         ? 0o755
+        //                         : 0o664;
+
+        //                     readStream.pipe(fs.createWriteStream(absoluteEntryPath, { mode: fileMode }));
+        //                     readStream.on('end', () => zipFile.readEntry());
+        //                 });
+        //             });
+        //         }
+        //     });
+
+        //     zipFile.on('end', () => {
+        //         resolve();
+        //     });
+
+        //     zipFile.on('error', err => {
+        //         reject(new PackageError('Zip File Error:' + err.code || '', pkg, err));
+        //     });
+        // });
     }).then(() => {
         // Clean up temp file
         pkg.tmpFile.removeCallback();
