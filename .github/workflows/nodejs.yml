@@ -22,11 +22,11 @@ jobs:
       run: |
         npm i
         npm run vscode:prepublish 
-    - name: Dump matrix context
-      run: echo ${{ toJson(matrix) }}
-    - name: npm test 
-      if: matrix.os == 'ubuntu-latest'
-      run: xvfb-run npm test
-    - name: npm test 
-      if: matrix.os == 'macOS-latest' || matrix.os == 'windows-latest'
-      run: npm test
+    - name: Start xvfb
+      if: startsWith(matrix.os, 'ubuntu')
+      run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    - name: Run tests
+      env:
+          CODE_VERSION: ''
+          DISPLAY: ':99.0'
+      run: npm run test
