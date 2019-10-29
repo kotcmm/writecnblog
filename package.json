@@ -25,7 +25,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "writeCnblog.createPost",
                 "title": "新建文章",
                 "category": "CnBlog",
@@ -134,12 +135,14 @@
                 }
             }
         ],
-        "keybindings": [{
-            "command": "writeCnblog.pasteImageFromClipboard",
-            "key": "shift+alt+v",
-            "mac": "shift+alt+v",
-            "when": "editorTextFocus && editorLangId == 'markdown'"
-        }],
+        "keybindings": [
+            {
+                "command": "writeCnblog.pasteImageFromClipboard",
+                "key": "shift+alt+v",
+                "mac": "shift+alt+v",
+                "when": "editorTextFocus && editorLangId == 'markdown'"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "writeCnblog configuration",
@@ -172,14 +175,17 @@
             }
         },
         "viewsContainers": {
-            "activitybar": [{
-                "id": "write-cnblog",
-                "title": "WriteCnblog",
-                "icon": "resources/write-cnblog.svg"
-            }]
+            "activitybar": [
+                {
+                    "id": "write-cnblog",
+                    "title": "WriteCnblog",
+                    "icon": "resources/write-cnblog.svg"
+                }
+            ]
         },
         "views": {
-            "write-cnblog": [{
+            "write-cnblog": [
+                {
                     "id": "blogPostExplorer",
                     "name": "文章列表"
                 },
@@ -190,7 +196,8 @@
             ]
         },
         "menus": {
-            "view/title": [{
+            "view/title": [
+                {
                     "command": "writeCnblog.createPost",
                     "when": "view == blogPostExplorer",
                     "group": "navigation"
@@ -215,7 +222,8 @@
                     "group": "navigation"
                 }
             ],
-            "view/item/context": [{
+            "view/item/context": [
+                {
                     "command": "writeCnblog.publishPost",
                     "when": "view == blogPostExplorer && viewItem =~ /BlogPostItem*/",
                     "group": "1@2"
@@ -294,12 +302,30 @@
         "tmp": "0.0.33",
         "xml2js": "^0.4.19"
     },
-    "runtimeDependencies": [{
-        "description": "clipboard-data for Windows",
-        "url": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.6/clipboard-data-v0.0.3-beta.6-electron-v69-win32-x64.tar.gz",
-        "installPath": "node_modules/clipboard-data",
-        "platforms": [
-            "win32"
-        ]
-    }]
+    "runtimeDependencies": [
+        {
+            "description": "clipboard-data for Windows",
+            "url": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.6/clipboard-data-v0.0.3-beta.6-electron-v69-win32-x64.tar.gz",
+            "installPath": "node_modules/clipboard-data",
+            "platforms": [
+                "win32"
+            ]
+        },
+        {
+            "description": "clipboard-data for macOS",
+            "url": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.6/clipboard-data-v0.0.3-beta.6-electron-v69-darwin-x64.tar.gz",
+            "installPath": "node_modules/clipboard-data",
+            "platforms": [
+                "darwin"
+            ]
+        },
+        {
+            "description": "clipboard-data for Linux",
+            "url": "https://github.com/kotcmm/clipboard-data/releases/download/v0.0.3-beta.6/clipboard-data-v0.0.3-beta.6-electron-v69-linux-x64.tar.gz",
+            "installPath": "node_modules/clipboard-data",
+            "platforms": [
+                "linux"
+            ]
+        }
+    ]
 }

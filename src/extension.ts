@@ -25,12 +25,6 @@ import { ExtensionDownloader } from './runtimeManager/ExtensionDownloader';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-    const logger = new Logger();
-
-    const extensionId = 'caipeiyu.write-cnblog';
-    const extension = vscode.extensions.getExtension(extensionId);
-    util.setExtensionPath(context.extensionPath);
-
     blogPostProvider.initialize(context);
     vscode.window.createTreeView('blogPostExplorer', { treeDataProvider: blogPostProvider });
     vscode.window.createTreeView('blogCategoriesExplorer', { treeDataProvider: blogCategoriesProvider });
@@ -50,12 +44,21 @@ export async function activate(context: vscode.ExtensionContext) {
     selectCategoryActivate(context);
     removeCategoryActivate(context);
 
-    if (await ensureRuntimeDependencies(extension, logger)) {
+    try {
         pasteImageFromClipboardActivate(context);
-    } else {
-        vscode.window.showInformationMessage("下载依赖失败，剪切板贴图不可用");
-    }
+    } catch (error) {
+        const logger = new Logger();
 
+        const extensionId = 'caipeiyu.write-cnblog';
+        const extension = vscode.extensions.getExtension(extensionId);
+        util.setExtensionPath(context.extensionPath);
+
+        if (await ensureRuntimeDependencies(extension, logger)) {
+            pasteImageFromClipboardActivate(context);
+        } else {
+            vscode.window.showInformationMessage("下载依赖失败，剪切板贴图不可用");
+        }
+    }
 }
 
 export function deactivate() {
