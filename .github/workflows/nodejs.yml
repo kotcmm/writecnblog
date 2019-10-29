@@ -1,16 +1,17 @@
 name: Build writecnblog
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   build:
-
-    runs-on: macOS-latest
-
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
         node-version: [12.x]
-
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -21,14 +22,6 @@ jobs:
       run: |
         npm i
         npm run vscode:prepublish
-    - name: package
-      run: |
-          npm install -g vsce
-          vsce package -o write-cnblog.vsix
-    - name: Upload to release
-      uses: JasonEtco/upload-to-release@master
-      with:
-        args: write-cnblog.vsix
+        npm test
       env:
         CI: true
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
