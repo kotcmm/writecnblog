@@ -27,5 +27,6 @@ jobs:
     - name: npm test 
       if: matrix.os == 'ubuntu-latest'
       run: xvfb-run npm test
+    - name: npm test 
       if: matrix.os == 'macOS-latest' || matrix.os == 'windows-latest'
       run: npm test
