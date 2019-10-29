@@ -21,14 +21,11 @@ jobs:
     - name: npm install, build and
       run: |
         npm i
-        npm run vscode:prepublish
-        
+        npm run vscode:prepublish 
     - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
+      run: echo ${{ toJson(matrix) }}
     - name: npm test 
-     if: matrix.os == 'ubuntu-latest'
-     run: xvfb-run npm test
-     if: matrix.os == 'macOS-latest' || matrix.os == 'windows-latest'
-     run: npm test
+      if: matrix.os == 'ubuntu-latest'
+      run: xvfb-run npm test
+      if: matrix.os == 'macOS-latest' || matrix.os == 'windows-latest'
+      run: npm test
