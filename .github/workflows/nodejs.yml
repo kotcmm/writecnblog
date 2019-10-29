@@ -22,6 +22,6 @@ jobs:
       run: |
         npm i
         npm run vscode:prepublish
-        npm test
+        xvfb-run npm test
       env:
         CI: true
