@@ -16,13 +16,13 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: write-cnblog.vsix
-            asset_name: write-linux-cnblog.vsix
+            asset_name: write-cnblog-linux.vsix
           - os: windows-latest
             artifact_name: write-cnblog.vsix
-            asset_name: write-windows-cnblog.vsix
+            asset_name: write-cnblog-windows.vsix
           - os: macos-latest
             artifact_name: write-cnblog.vsix
-            asset_name: write-macos-cnblog.vsix
+            asset_name: write-cnblog-macos.vsix
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
