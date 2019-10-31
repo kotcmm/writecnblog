@@ -66,7 +66,7 @@ export class PostImageReplace {
             let imageData = fs.readFileSync(imagePath);
             let extname = path.extname(imagePath);
             let name = path.basename(imagePath);
-            let type = `image/${extname.substr(0, extname.length - 1)}`;
+            let type = `image/${extname.substr(1, extname.length - 1)}`;
             return await blogOperate.newMediaObject(imageData, type, name);
         }
 
