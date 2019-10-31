@@ -11,6 +11,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node-version: [12.x]
         include:
           - os: ubuntu-latest
             artifact_name: write-cnblog.vsix
