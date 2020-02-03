@@ -1,0 +1,52 @@
+name: Publish Release writecnblog
+
+on: 
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node-version: [12.x]
+        include:
+          - os: ubuntu-latest
+            artifact_name: write-cnblog.vsix
+            asset_name: write-cnblog-linux.vsix
+          - os: windows-latest
+            artifact_name: write-cnblog.vsix
+            asset_name: write-cnblog-windows.vsix
+          - os: macos-latest
+            artifact_name: write-cnblog.vsix
+            asset_name: write-cnblog-macos.vsix
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build
+      run: |
+        npm i
+        npm run vscode:prepublish 
+    - name: Start xvfb
+      if: startsWith(matrix.os, 'ubuntu')
+      run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    - name: Run tests
+      env:
+          CODE_VERSION: ''
+          DISPLAY: ':99.0'
+      run: npm run test
+    - name: Run package 
+      run: npm run package 
+    - name: Upload package to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}

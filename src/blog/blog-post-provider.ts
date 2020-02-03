@@ -56,6 +56,16 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
         }
 
         return blogFile.readPosts().sort((a, b) => {
+            if (a.state === b.state) {
+                if (a.postId && b.postId) {
+                    return b.postId - a.postId;
+                } else if (a.postId && !b.postId) {
+                    return -1;
+                } else if (!a.postId && !b.postId) {
+                    return 1;
+                }
+                return 0;
+            }
             return a.state - b.state;
         }).map<BlogPostItem>((postBaseInfo) => {
             return {

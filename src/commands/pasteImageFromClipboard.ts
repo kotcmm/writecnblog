@@ -4,10 +4,12 @@ import * as path from 'path';
 import { blogWorkspace } from '../blog/blog-workspace';
 import { imageDirName } from '../constants';
 
-const clip = require('clipboard-data');
+let clip: any;
 
 export function pasteImageFromClipboardActivate(context: vscode.ExtensionContext) {
-
+    if (!clip) {
+        clip = require('clipboard-data');
+    }
     let pasteImageFromClipboardDisposable = vscode.commands.registerCommand('writeCnblog.pasteImageFromClipboard',
         () => {
             try {

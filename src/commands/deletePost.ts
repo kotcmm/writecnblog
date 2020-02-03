@@ -12,17 +12,17 @@ export function deletePostActivate(context: vscode.ExtensionContext) {
                 .then(async selection => {
                     try {
                         if (selection === '删除' && blogPostItem.postBaseInfo) {
+                            blogFile.deletePost(blogPostItem.postBaseInfo);
                             let postId = blogPostItem.postBaseInfo.postId;
                             if (postId) {
                                 await blogOperate.deletePost(postId, false);
                             }
-                            blogFile.deletePost(blogPostItem.postBaseInfo);
-                            blogPostProvider.refresh();
                         }
                     } catch (error) {
                         vscode.window.showErrorMessage(error.message);
+                    } finally {
+                        blogPostProvider.refresh();
                     }
-
                 });
         });
 

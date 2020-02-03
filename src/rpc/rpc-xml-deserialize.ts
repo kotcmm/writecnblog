@@ -106,10 +106,12 @@ export class RpcXmlDeserialize {
      */
     private getArrayValueData(arrayObj: any): any {
         let array: Array<any> = new Array<any>();
-        arrayObj[0].data[0].value.forEach((element: any) => {
-            let data = this.getValueData(element);
-            array.push(data);
-        });
+        if (arrayObj[0].data[0].value) {
+            arrayObj[0].data[0].value.forEach((element: any) => {
+                let data = this.getValueData(element);
+                array.push(data);
+            });
+        }
         return array;
     }
 
