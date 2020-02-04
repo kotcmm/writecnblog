@@ -116,7 +116,7 @@ export class BlogPostFile {
             return PostState.D;
         }
         else if (this.isNew()) {
-            return PostState.U;
+            return PostState.A;
         }
         else if (this.isPostModify()) {
             return PostState.M;
