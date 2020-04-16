@@ -285,7 +285,7 @@
     "dependencies": {
         "clipboard-data": "0.0.3-beta.7",
         "http-proxy-agent": "2.1.0",
-        "https-proxy-agent": "2.2.1",
+        "https-proxy-agent": "2.2.3",
         "keytar": "^5.0.0-beta.3",
         "mkdirp": "^0.5.1",
         "moment": "^2.24.0",
