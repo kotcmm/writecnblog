@@ -6,6 +6,8 @@ import { PostIndexInfo, PostState } from "./shared";
 import { fileExt } from "../constants";
 import { blogWorkspace } from "./blog-workspace";
 
+const violateChars = ["\\","/",":","*","?","\"","<",">","|"];
+
 export class BlogPostFile {
 
     /**
@@ -27,7 +29,17 @@ export class BlogPostFile {
      */
     get postPath(): string {
         return path.join(this.folderPath,
-            `${this.postIndexInfo.title}.${this.postIndexInfo.id}${fileExt}`);
+            `${this.titleEncodeURI(this.postIndexInfo.title)}.${this.postIndexInfo.id}${fileExt}`);
+    }
+
+    /**
+     * 编码不符合文件名称的标题
+     */
+    private titleEncodeURI(title:string): string{
+        if(violateChars.findIndex(c=>title.includes(c)) !== -1){
+            return encodeURIComponent(title)
+        }
+        return title;
     }
 
     /**

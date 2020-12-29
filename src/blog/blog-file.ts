@@ -177,12 +177,19 @@ export class BlogFile {
                 let childSub = child.substring(0, lastIndex);
                 lastIndex = childSub.lastIndexOf('.');
                 postFiles.push({
-                    title: childSub.substring(0, lastIndex),
+                    title: this.titleDecodeURI(childSub.substring(0, lastIndex)),
                     fsPath: filePath
                 });
             }
         }
         return postFiles;
+    }
+
+    /**
+     * 解码不符合文件名称的标题
+     */
+    private titleDecodeURI(title:string): string{
+        return decodeURIComponent(title)
     }
 
     /**
