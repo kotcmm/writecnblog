@@ -85,7 +85,7 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
     private getContextValue(postBaseInfo: PostBaseInfo): string {
         if (postBaseInfo.state === PostState.M) {
             return 'BlogPostItem-diff';
-        } else if (postBaseInfo.state === PostState.U) {
+        } else if (postBaseInfo.state === PostState.A) {
             return 'BlogPostItem-create';
         }
         return 'BlogPostItem';
@@ -96,8 +96,8 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
             throw new Error("context需要初始化");
         }
         switch (state) {
-            case PostState.U:
-                return this.context.asAbsolutePath(path.join('resources', 'U.svg'));
+            case PostState.A:
+                return this.context.asAbsolutePath(path.join('resources', 'A.svg'));
             case PostState.M:
                 return this.context.asAbsolutePath(path.join('resources', 'M.svg'));
             case PostState.D:

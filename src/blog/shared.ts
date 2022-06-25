@@ -5,7 +5,7 @@ export interface PostFile {
 }
 
 export enum PostState {
-    U = 0,//新建
+    A = 0,//新建
     M = 1,//修改
     D = 2,//删除
     R = 3//正常
