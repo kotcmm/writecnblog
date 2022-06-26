@@ -7,6 +7,7 @@ import { PostIndexInfo, PostFile, PostBaseInfo } from './shared';
 import { BlogPostFile } from './blog-post-file';
 import { blogWorkspace } from './blog-workspace';
 import { postImageReplace } from './post-image-replace';
+import { TreeItemLabel } from 'vscode';
 
 export class BlogFile {
 
@@ -307,7 +308,7 @@ export class BlogFile {
         let blogPostFile = this.createBlogPostFileById(id);
         let postIndex = blogPostFile.getPostIndexInfo();
         let description = await postImageReplace.toRemote(blogPostFile.description());
-        let categories: string[] = postIndex.categories ? postIndex.categories : [];
+        let categories: (string | TreeItemLabel)[] = postIndex.categories ? postIndex.categories : [];
 
         if (!categories.includes("[Markdown]")) {
             categories.push("[Markdown]");
@@ -371,7 +372,7 @@ export class BlogFile {
      * @param id 
      * @param category 
      */
-    public removeCategory(id: number, category: string) {
+    public removeCategory(id: number, category: string | TreeItemLabel) {
         let postIndex = this.postIndexs.find(p => p.id === id);
         if (postIndex) {
             if (postIndex.categories) {

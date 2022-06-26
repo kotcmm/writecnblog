@@ -1,3 +1,5 @@
+import { TreeItemLabel } from "vscode";
+
 export interface MethodCall {
     methodName: string;
     params: any;
@@ -107,7 +109,7 @@ export interface BlogInfoStruct {
 export interface PostStruct {
     description: string;
     title: string;
-    categories?: string[];
+    categories?: (string | TreeItemLabel)[];
     dateCreated?: Date;
     enclosure?: EnclosureStruct;
     link?: string;

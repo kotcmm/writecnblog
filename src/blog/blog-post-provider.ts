@@ -10,7 +10,7 @@ export class BlogPostProvider implements vscode.TreeDataProvider<BlogPostItem> {
     readonly onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
 
     public async refresh(): Promise<any> {
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     private context: vscode.ExtensionContext | undefined;

@@ -21,9 +21,9 @@ export class BlogCategoriesProvider implements vscode.TreeDataProvider<vscode.Tr
     public async refresh(): Promise<any> {
         try {
             this.categories = await blogOperate.getCategories();
-            this._onDidChangeTreeData.fire();
+            this._onDidChangeTreeData.fire(undefined);
         } catch (error) {
-            vscode.window.showErrorMessage(error.message);
+            vscode.window.showErrorMessage((error as Error).message);
         }
     }
 

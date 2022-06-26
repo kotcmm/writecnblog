@@ -1,3 +1,4 @@
+import { TreeItemLabel } from "vscode";
 
 export interface PostFile {
     title: string;
@@ -19,7 +20,7 @@ export interface PostBaseInfo {
     state: PostState;
     fsPath: string;
     remotePath?: string;
-    categories?: Array<string>;
+    categories?: Array<string| TreeItemLabel>;
     link?: string;
     permalink?: string;
 }
@@ -29,7 +30,7 @@ export interface PostIndexInfo {
     postid: any;
     title: string;
     remoteTitle?: string;
-    categories?: Array<string>;
+    categories?: Array<string | TreeItemLabel>;
     link?: string;
     permalink?: string;
 }

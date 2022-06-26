@@ -267,20 +267,19 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "package": "vsce package -o write-cnblog.vsix"
     },
     "devDependencies": {
+        "@types/vscode": "^1.31.0",
         "@types/mkdirp": "^0.5.2",
         "@types/mocha": "^2.2.42",
         "@types/node": "^10.11.3",
         "@types/rimraf": "^2.0.2",
         "@types/tmp": "0.0.33",
         "tslint": "^5.8.0",
-        "typescript": "^2.6.1",
-        "vsce": "^1.69.0",
-        "vscode": "^1.1.36"
+        "typescript": "^3.4.5",
+        "vsce": "^1.69.0"
     },
     "dependencies": {
         "clipboard-data": "0.0.3-beta.7",

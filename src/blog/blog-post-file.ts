@@ -5,6 +5,7 @@ import * as rimraf from 'rimraf';
 import { PostIndexInfo, PostState } from "./shared";
 import { fileExt } from "../constants";
 import { blogWorkspace } from "./blog-workspace";
+import { TreeItemLabel } from 'vscode';
 
 const violateChars = ["\\","/",":","*","?","\"","<",">","|"];
 
@@ -178,7 +179,7 @@ export class BlogPostFile {
      * 更新类别目录
      * @param categories 
      */
-    public updateCategories(categories: Array<string> | undefined) {
+    public updateCategories(categories: Array<string|TreeItemLabel> | undefined) {
         this.postIndexInfo.categories = categories;
     }
 

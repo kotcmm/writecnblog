@@ -168,9 +168,12 @@ export class RpcClient {
 
         let options = {
             url: this.rpc_url,
-            headers: '{Content-Type:application/xml}',
+            headers: {
+                'Content-Type': 'application/xml',
+                'Host': 'rpc.cnblogs.com'
+            },
             method: 'post',
-            body: xml
+            body: xml,
         };
 
         return new Promise<any>((resolve, reject) => {
