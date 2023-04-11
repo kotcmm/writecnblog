@@ -293,7 +293,7 @@
         "rimraf": "^2.6.2",
         "tar-fs": "^2.0.0",
         "tmp": "0.0.33",
-        "xml2js": "^0.4.19"
+        "xml2js": "^0.5.0"
     },
     "runtimeDependencies": [{
             "description": "clipboard-data for Windows",
