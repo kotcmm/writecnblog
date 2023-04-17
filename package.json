@@ -287,7 +287,7 @@
         "https-proxy-agent": "2.2.3",
         "keytar": "^5.0.0-beta.3",
         "mkdirp": "^0.5.1",
-        "moment": "^2.29.2",
+        "moment": "^2.29.4",
         "pump": "^3.0.0",
         "request": "^2.88.0",
         "rimraf": "^2.6.2",
