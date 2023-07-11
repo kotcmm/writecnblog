@@ -1,5 +1,8 @@
 # WriteCnblog README
 
+官方出了自己的插件地址 https://github.com/cnblogs/vscode-cnb
+博客园的协议也有做了点改变，导致这个插件不兼容了。这个插件不维护了
+
 "WriteCnblog" 是一个基于rpcxml协议给[博客园](http://www.cnblogs.com/)发布Markdown格式的插件
 
 ![](resources/home.JPG)
